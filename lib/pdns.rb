@@ -7,7 +7,7 @@ class PDNS
   @port     = Integer
   @api_key  = String
   @headers  = String
-  @last_res = Net:HTTPResponse
+  @last_res = Net::HTTPResponse
 
   # Initialise the class
   def initialize(host, port, api_key, v = 'v1')
