@@ -117,6 +117,16 @@ class PDNS
     # TODO: /servers/:server_id/overrides/:override_id: GET, PUT, DELETE
   end
 
+  # Create a Server object
+  def new_server(server_id)
+    PDNS::Server.new(self, server_id, zone_id)
+  end
+
+  # Create a Zone object
+  def new_zone(server_id, zone_id)
+    PDNS::Zone.new(self, server_id, zone_id)
+  end
+
   private
 
   # Do an HTTP request
