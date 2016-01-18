@@ -50,13 +50,13 @@ class PDNS
   end
 
   # Manipulate specific zone data
-  def zone_zones(server_id, zone_id, rrsets)
+  def zone_zones(server_id, zone_id, rrsets = nil)
     case rrsets
     when nil      then get("/servers/#{server_id}/zones/#{zone_id}")
     when 'delete' then delete("/servers/#{server_id}/zones/#{zone_id}")
     else               patch("/servers/#{server_id}/zones/#{zone_id}", rrsets)
     end
-    # TODO: /servers/:server_id/zones/:zone_id: PUT
+    # TODO: /servers/:server_id/zones/:zone_id: PUT (undocumented)
   end
 
   ## Zone specific methods
@@ -141,7 +141,7 @@ class PDNS
             end
 
       # Do the request
-      http.request(req, body)
+      http.request(req, body.to_json)
     end
 
     # Parse and return JSON
@@ -251,7 +251,7 @@ class PDNS
     end
 
     # Modify a zone
-    def put(rrset)
+    def modify(rrset)
       @pdns.zones(@server_id, @zone_id, rrset)
     end
 
