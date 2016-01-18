@@ -119,13 +119,17 @@ class PDNS
 
   # Create a Server object
   def new_server(server_id)
-    PDNS::Server.new(self, server_id, zone_id)
+    PDNS::Server.new(self, server_id)
   end
 
   # Create a Zone object
   def new_zone(server_id, zone_id)
     PDNS::Zone.new(self, server_id, zone_id)
   end
+
+  # Aliases for methods
+  alias_method :server, :new_server
+  alias_method :zone, :new_zone
 
   private
 
@@ -186,6 +190,12 @@ class PDNS
       @pdns      = pdns
       @server_id = server_id
     end
+
+    def new_zone(zone_id)
+      @pdns.new_zone(@server_id, zone_id)
+    end
+
+    alias_method :zone, :new_zone
 
     def get(data = nil)
       @pdns.servers
