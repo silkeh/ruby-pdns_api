@@ -3,10 +3,11 @@ require 'net/http'
 
 # Class for the PowerDNS API
 class PDNS
-  @host    = String
-  @port    = Integer
-  @api_key = String
-  @headers = String
+  @host     = String
+  @port     = Integer
+  @api_key  = String
+  @headers  = String
+  @last_res = Net:HTTPResponse
 
   # Initialise the class
   def initialize(host, port, api_key, v = 'v1')
@@ -143,6 +144,9 @@ class PDNS
       # Do the request
       http.request(req, body.to_json)
     end
+
+    # Store the last response
+    @last_res = res
 
     # Parse and return JSON
     JSON.parse res.body
