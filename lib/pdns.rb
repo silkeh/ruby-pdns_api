@@ -130,8 +130,6 @@ class PDNS
       # Creat uri
       uri = @base + uri unless @base.nil?
 
-      puts "#{method}: #{uri}" if DEBUG
-
       # Create the right request
       req = case method
             when 'GET'    then Net::HTTP::Get.new(uri, @headers)
@@ -160,14 +158,14 @@ class PDNS
     http('GET', uri)
   end
 
-  # Do a PATCHrequest
+  # Do a PATCH request
   def patch(uri, body = nil)
-    http('PUT', uri, body)
+    http('PATCH', uri, body)
   end
 
   # Do a POST request
   def post(uri, body = nil)
-    http('PUT', uri, body)
+    http('POST', uri, body)
   end
 
   # Do a PUT request
