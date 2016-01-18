@@ -130,6 +130,8 @@ class PDNS
       # Creat uri
       uri = @base + uri unless @base.nil?
 
+      puts "#{method}: #{uri}" if DEBUG
+
       # Create the right request
       req = case method
             when 'GET'    then Net::HTTP::Get.new(uri, @headers)
@@ -246,13 +248,13 @@ class PDNS
     end
 
     # ?
-    def patch(rrset)
-      # TODO: Implement PATCH
+    def put(rrset)
+      # TODO: Implement PUT (undocumented)
     end
 
     # Modify a zone
     def modify(rrset)
-      @pdns.zones(@server_id, @zone_id, rrset)
+      @pdns.zone_zones(@server_id, @zone_id, rrset)
     end
 
     # Notify slaves for a zone
