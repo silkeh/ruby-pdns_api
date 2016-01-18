@@ -3,11 +3,7 @@ require 'net/http'
 
 # Class for the PowerDNS API
 class PDNS
-  @host     = String
-  @port     = Integer
-  @api_key  = String
-  @headers  = String
-  @last_res = Net::HTTPResponse
+  attr_reader :last_res
 
   # Initialise the class
   def initialize(host, port, api_key, v = 'v1')
@@ -124,10 +120,10 @@ class PDNS
   private
 
   # Do an HTTP request
-  # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
   def http(method, uri, body = nil)
     # Start an HTTP connection
-    res = Net::HTTP.start(@host, @port) do |http|
+    @last_res = Net::HTTP.start(@host, @port) do |http|
       # Creat uri
       uri = @base + uri unless @base.nil?
 
@@ -145,11 +141,8 @@ class PDNS
       http.request(req, body.to_json)
     end
 
-    # Store the last response
-    @last_res = res
-
     # Parse and return JSON
-    JSON.parse res.body
+    JSON.parse @last_res.body
   end
 
   # Do a DELETE request
@@ -179,25 +172,19 @@ class PDNS
 
   # Class for server manipulation
   class Server
-    @pdns      = PDNS
-    @server_id = String
-
     def initialize(pdns, server_id)
       @pdns      = pdns
       @server_id = server_id
     end
 
-    # Get or set info about a server
     def get(data = nil)
       @pdns.servers
     end
 
-    # Get or set server config
     def config(config_setting_name = nil, data = nil)
       @pdns.config(@server_id, config_setting_name, data)
     end
 
-    # Get or set zone data
     def zones(data = nil)
       @pdns.server_zones(@server_id, data)
     end
@@ -229,62 +216,48 @@ class PDNS
 
   # Class for zone manipulation
   class Zone
-    @pdns      = PDNS
-    @server_id = String
-    @zone_id   = String
-
     def initialize(pdns, server_id, zone_id)
       @pdns      = pdns
       @server_id = server_id
       @zone_id   = zone_id
     end
 
-    # Deleta a zone
     def delete
       @pdns.zone_zones(@server_id, @zone_id, 'delete')
     end
 
-    # Get a zone
     def get
       @pdns.zone_zones(@server_id, @zone_id)
     end
 
-    # ?
     def put(rrset)
       # TODO: Implement PUT (undocumented)
     end
 
-    # Modify a zone
     def modify(rrset)
       @pdns.zone_zones(@server_id, @zone_id, rrset)
     end
 
-    # Notify slaves for a zone
     def notify
       @pdns.zone_notify(@server_id, @zone_id)
     end
 
-    # Get the AXFR for a zone
     def axfr_retrieve
       @pdns.zone_axfr_retrieve(@server_id, @zone_id)
     end
 
-    # Export a zone
     def export
       @pdns.zone_axfr_retrieve(@server_id, @zone_id)
     end
 
-    # Check a zone
     def check
       @pdns.zone_check(@server_id, @zone_id)
     end
 
-    # Manipulate metadata for a zone
     def metadata(metadata_kind = nil)
       @pdns.metadata(@server_id, @zone_id, metadata_kind)
     end
 
-    # Change cryptokeys for a zone
     def cryptokeys(cryptokey_id = nil)
       @pdns.cryptokeys(@server_id, @zone_id, cryptokey_id)
     end
