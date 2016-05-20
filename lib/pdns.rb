@@ -61,22 +61,22 @@ class PDNS
 
   # Notify slaves for a zone
   def zone_notify(server_id, zone_id)
-    put "/servers/#{@server_id}/zones/#{@zone_id}/notify"
+    put "/servers/#{server_id}/zones/#{zone_id}/notify"
   end
 
   # Get the AXFR for a zone
   def zone_axfr_retrieve(server_id, zone_id)
-    put "/servers/#{@server_id}/zones/#{@zone_id}/axfr-retrieve"
+    put "/servers/#{server_id}/zones/#{zone_id}/axfr-retrieve"
   end
 
   # Export a zone
   def zone_export(server_id, zone_id)
-    get "/servers/#{@server_id}/zones/#{@zone_id}/export"
+    get "/servers/#{server_id}/zones/#{zone_id}/export"
   end
 
   # Check a zone
   def zone_check(server_id, zone_id)
-    get "/servers/#{@server_id}/zones/#{@zone_id}/check"
+    get "/servers/#{server_id}/zones/#{zone_id}/check"
   end
 
   # Manipulate metadata for a zone
@@ -129,8 +129,8 @@ class PDNS
   end
 
   # Aliases for methods
-  alias_method :server, :new_server
-  alias_method :zone, :new_zone
+  alias server new_server
+  alias zone new_zone
 
   private
 
@@ -196,10 +196,10 @@ class PDNS
       @pdns.new_zone(@server_id, zone_id)
     end
 
-    alias_method :zone, :new_zone
+    alias zone new_zone
 
     def get(data = nil)
-      @pdns.servers
+      @pdns.servers(@server_id, data)
     end
 
     def config(config_setting_name = nil, data = nil)
@@ -247,17 +247,16 @@ class PDNS
       rrsets.map! do |rrset|
         rrset[:records].map! do |record|
           record = {
-              'content'  => record[:content],
-              'disabled' => !!record[:disabled] || !!rrset[:disabled],
-              'set-ptr'  => !!record[:set_ptr]
+            'content'  => record[:content],
+            'disabled' => !!record[:disabled] || !!rrset[:disabled],
+            'set-ptr'  => !!record[:set_ptr]
           }
-          if @pdns.version == 0
-            record.merge!(
-                             'name' => rrset[:name],
-                             'type' => rrset[:type],
-                             'ttl'  => rrset[:ttl],
-                         )
-          end
+          next unless @pdns.version == 0
+          record.merge!(
+            'name' => rrset[:name],
+            'type' => rrset[:type],
+            'ttl'  => rrset[:ttl]
+          )
         end if rrset.key?(:records)
 
         # Convert symbols to strings
@@ -271,7 +270,7 @@ class PDNS
         #     'comments'   => rrset[:comments],
         # }
       end
-      modify( 'rrsets' => rrsets )
+      modify('rrsets' => rrsets)
     end
 
     def create_records(rrset)
@@ -285,7 +284,7 @@ class PDNS
       # Set type and format records
       rrsets.map! do |rrset|
         rrset[:changetype] = 'REPLACE'
-        rrset[:records]     = create_records(rrset)
+        rrset[:records] = create_records(rrset)
         rrset
       end
       apply(rrsets)
@@ -297,14 +296,14 @@ class PDNS
 
       # Add these records to the rrset
       rrsets.map! do |rrset|
-        current = data.select { |r| r['name'] == rrset[:name] and r['type'] == rrset[:type] }
+        current = data.select { |r| r['name'] == rrset[:name] && r['type'] == rrset[:type] }
         current.map! do |record|
           {
-              content:  record['content'],
-              disabled: record['disabled']
+            content:  record['content'],
+            disabled: record['disabled']
           }
         end
-        rrset[:records]     = current + create_records(rrset)
+        rrset[:records] = current + create_records(rrset)
         rrset[:changetype] = 'REPLACE'
         rrset
       end
