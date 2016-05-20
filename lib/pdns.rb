@@ -3,15 +3,16 @@ require 'net/http'
 
 # Class for the PowerDNS API
 class PDNS
-  attr_reader :last_res
+  attr_reader :last_res, :version
 
   # Initialise the class
-  def initialize(host, port, api_key, v = 'v1')
+  def initialize(host, port, api_key, v = 1)
     @host    = host
     @port    = port
     @api_key = api_key
     @headers = { 'X-API-Key' => api_key }
-    @base    = "/api/#{v}" unless v == 'v0'
+    @base    = "/api/v#{v}" unless v == 0
+    @version = v
   end
 
   ## Main methods
@@ -240,6 +241,83 @@ class PDNS
       @pdns      = pdns
       @server_id = server_id
       @zone_id   = zone_id
+    end
+
+    def apply(rrsets)
+      rrsets.map! do |rrset|
+        rrset[:records].map! do |record|
+          record = {
+              'content'  => record[:content],
+              'disabled' => !!record[:disabled] || !!rrset[:disabled],
+              'set-ptr'  => !!record[:set_ptr]
+          }
+          if @pdns.version == 0
+            record.merge!(
+                             'name' => rrset[:name],
+                             'type' => rrset[:type],
+                             'ttl'  => rrset[:ttl],
+                         )
+          end
+        end if rrset.key?(:records)
+
+        # Convert symbols to strings
+        rrset.map { |symbol, value| [symbol.to_s, value] }.to_h
+        # {
+        #     'name'       => rrset[:name],
+        #     'type'       => rrset[:type],
+        #     'ttl'        => rrset[:ttl],
+        #     'changetype' => rrset[:change_type],
+        #     'records'    => rrset[:records],
+        #     'comments'   => rrset[:comments],
+        # }
+      end
+      modify( 'rrsets' => rrsets )
+    end
+
+    def create_records(rrset)
+      rrset[:records].map do |value|
+        value = { content: value } if value.is_a?(String)
+        value
+      end
+    end
+
+    def update(*rrsets)
+      # Set type and format records
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'REPLACE'
+        rrset[:records]     = create_records(rrset)
+        rrset
+      end
+      apply(rrsets)
+    end
+
+    def add(*rrsets)
+      # Get current zone data
+      data = get['records']
+
+      # Add these records to the rrset
+      rrsets.map! do |rrset|
+        current = data.select { |r| r['name'] == rrset[:name] and r['type'] == rrset[:type] }
+        current.map! do |record|
+          {
+              content:  record['content'],
+              disabled: record['disabled']
+          }
+        end
+        rrset[:records]     = current + create_records(rrset)
+        rrset[:changetype] = 'REPLACE'
+        rrset
+      end
+      apply(rrsets)
+    end
+
+    def remove(*rrsets)
+      # Set type and format records
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'DELETE'
+        rrset
+      end
+      apply(rrsets)
     end
 
     def delete
