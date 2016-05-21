@@ -23,7 +23,6 @@ module PDNS
 
     # Create the right method object
     def http_method(method, uri)
-      puts method + ': ' + uri
       # Create the right request
       case method
       when 'GET'    then Net::HTTP::Get.new(uri, @headers)
