@@ -6,7 +6,7 @@ module PDNS
       @server_id     = server_id
       @zone_id       = zone_id
       @cryptokey_id  = cryptokey_id
-      @info          = nil
+      @info          = info
     end
 
     ## Simple interfaces to metadata

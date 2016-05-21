@@ -5,6 +5,7 @@ require 'net/http'
 module PDNS
   require_relative 'http'
 
+  # Class for interacting with the API
   class API
     def initialize(args)
       @@version = args.key?(:version) ? args[:version] : 1
