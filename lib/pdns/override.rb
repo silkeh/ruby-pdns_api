@@ -1,30 +1,21 @@
 # PDNS Server Override
 module PDNS
-  require'api'
-
   # Server override
-  class Override
-    def initialize(pdns, server_id, override_id)
-      @pdns          = pdns
-      @server_id     = server_id
-      @override_id = override_id
+  class Override < API
+    attr_reader :id, :url, :info
+
+    def initialize(t_url, id, info = {})
+      @id    = id
+      @info  = info
+      @r_url = "#{t_url}/metadata"
+      @url   = "#{t_url}/metadata/#{kind}"
     end
 
-    ## Simple interfaces to metadata
+    ## Simple interfaces to overrides
 
-    # Not yet implemented
-    def get
-      # TODO: /servers/:server_id/overrides/:override_id: GET
-    end
-
-    # Not yet implemented
-    def delete
-      # TODO: /servers/:server_id/overrides/:override_id: DELETE
-    end
-
-    # Not yet implemented
+    # Change override settings
     def change(rrsets)
-      # TODO: /servers/:server_id/overrides/:override_id: PUT
+      @@api.put(@url, rrsets)
     end
   end
 end

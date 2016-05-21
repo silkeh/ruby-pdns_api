@@ -2,21 +2,33 @@
 module PDNS
   # Server config
   class Config < API
-    def initialize(config_setting_name, info)
-      @config_setting_name = config_setting_name
-      @info = info
+    attr_accessor :name, :value
+
+    def initialize(t_url, name, value = nil)
+      @name  = name
+      @r_url = "#{t_url}/config"
+      @url   = "#{t_url}/config/#{name}"
+      @value = value.get if value.nil?
+      value(value)
     end
 
     ## Simple interfaces to metadata
-
-    # Not yet implemented
-    def get
-      @@api.get "/servers/#{@server_id}/#{@config_setting_name}"
+    # Get/set config value
+    def value(value = nil)
+      return @info['value'] if value.nil?
+      @info = { 'type' => 'ConfigSetting', 'name' => @name, 'value' => value }
     end
 
-    # Not yet implemented
-    def change(rrsets)
-      # TODO: /config/:config_setting_name: PUT
+    # Get configuration value
+    def get
+      res = @@api.get(@url)
+      return value if res.key? 'value'
+    end
+
+    # Change configuration
+    def change(value = nil)
+      value(value)
+      @@api.put(@url, @info)
     end
   end
 end

@@ -2,27 +2,26 @@
 module PDNS
   # PDNS Server
   class Server < API
+    require_relative 'config'
+    require_relative 'override'
     require_relative 'zone'
 
-    attr_reader :info
+    attr_reader :id, :url
 
-    def initialize(server_id, info = nil)
-      @server_id = server_id
-      @info      = info
+    def initialize(t_url, id, info = {})
+      @id    = id
+      @r_url = "#{t_url}/servers"
+      @url   = "#{t_url}/servers/#{id}"
+      @info  = info
     end
 
     ## Server interfaces
     # TODO: /servers/:server_id: ?
 
-    # Get server information
-    def get
-      @@api.get "/servers/#{@server_id}"
-    end
-
     ## Server actions
 
     def cache(domain)
-      # TODO: /servers/:server_id/cache/flush?domain=:domain: PUT
+      # TODO: #{url}/cache/flush?domain=:domain: PUT
     end
 
     def search_log(search_term)
@@ -44,35 +43,32 @@ module PDNS
     ## Server resources
 
     # Get or set server config
-    def config(config_setting_name = nil, _data = nil)
-      return Config.new(@server_id, config_setting_name) unless config_setting_name.nil?
+    def config(name = nil, value = nil)
+      return Config.new(@url, name, value).create unless name.nil? || value.nil?
+      return Config.new(@url, name) unless name.nil?
 
-      # TODO: /config: GET, POST
+      # Get all current configuration
+      config = @@api.get("#{@url}/config")
+      config.map { |c| [c['name'], c['value']] }.to_h
     end
 
-    # Get or set server overrides
-    def overrides(override_id = nil)
-      return Override.new(@server_id, override_id) unless override_id.nil?
+    # Get or set server overrides, not yet implemented
+    def overrides(id = nil)
+      return Override.new(@url, id) unless id.nil?
 
-      # TODO: /servers/:server_id/overrides: GET, POST
+      overrides = @@api.get("#{@url}/config")
+      overrides.map { |o| [o['id'], Override.new(@url, o['id'], o)] }.to_h
     end
 
     # Get zones or create one
     def zones(zone_id = nil)
-      return Zone.new(@server_id, zone_id) unless zone_id.nil?
+      return Zone.new(@url, zone_id) unless zone_id.nil?
 
-      zones = @@api.get("/servers/#{@server_id}/zones")
-      zones.map! do |zone|
-        [
-          zone['id'],
-          Zone.new(@server_id, zone['id'], zone)
-        ]
-      end
-      zones.to_h
-
-      # TODO: /servers/:server_id/zones: POST
+      zones = @@api.get("#{@url}/zones")
+      zones.map { |z| [z['id'], Zone.new(@url, z['id'], z)] }.to_h
     end
 
+    alias override overrides
     alias zone zones
   end
 end

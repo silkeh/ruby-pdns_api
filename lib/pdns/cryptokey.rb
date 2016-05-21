@@ -2,28 +2,18 @@
 module PDNS
   # Zone CryptoKey
   class CryptoKey < API
-    def initialize(server_id, zone_id, cryptokey_id, info = nil)
-      @server_id     = server_id
-      @zone_id       = zone_id
-      @cryptokey_id  = cryptokey_id
-      @info          = info
+    def initialize(t_url, id, info = {})
+      @id    = id
+      @info  = info
+      @r_url = "#{t_url}/metadata"
+      @url   = "#{t_url}/metadata/#{kind}"
     end
 
     ## Simple interfaces to metadata
 
-    # Not yet implemented
-    def get
-      # TODO: /servers/:server_id/zones/:zone_name/cryptokeys/:cryptokey_id: GET
-    end
-
-    # Not yet implemented
-    def delete
-      # TODO: /servers/:server_id/zones/:zone_name/cryptokeys/:cryptokey_id: DELETE
-    end
-
-    # Not yet implemented
+    # Change cryptokey information
     def change(rrsets)
-      # TODO: /servers/:server_id/zones/:zone_name/cryptokeys/:cryptokey_id: PUT
+      @@api.put(@url, rrsets)
     end
   end
 end

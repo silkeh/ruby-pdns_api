@@ -15,9 +15,35 @@ module PDNS
       @headers = { 'X-API-Key' => @key }
     end
 
-    def uri(request)
-      base = @version == 0 ? '' : "/api/v#{@version}"
+    def uri(request = '')
+      base = ''
+      base = "/api/v#{@version}" unless @version == 0 || request[0..4] == '/api/'
       base + request
+    end
+
+    # Create the right method object
+    def http_method(method, uri)
+      puts method + ': ' + uri
+      # Create the right request
+      case method
+      when 'GET'    then Net::HTTP::Get.new(uri, @headers)
+      when 'PATCH'  then Net::HTTP::Patch.new(uri, @headers)
+      when 'POST'   then Net::HTTP::Post.new(uri, @headers)
+      when 'PUT'    then Net::HTTP::Put.new(uri, @headers)
+      when 'DELETE' then Net::HTTP::Delete.new(uri, @headers)
+      else               abort('Unknown method: ' + method)
+      end
+    end
+
+    def response_decode(response)
+      return {} if response.body.nil?
+
+      # Parse and return JSON
+      begin
+        JSON.parse response.body
+      rescue JSON::ParserError
+        { 'error' => 'Non-JSON response', 'result' => response.body }
+      end
     end
 
     # Do an HTTP request
@@ -25,34 +51,19 @@ module PDNS
       # Start an HTTP connection
       begin
         response = Net::HTTP.start(@host, @port) do |http|
-          # Create uri
+          # Create uri & request
           uri = uri(request)
-
-          # Create the right request
-          req = case method
-                when 'GET'    then Net::HTTP::Get.new(uri, @headers)
-                when 'PATCH'  then Net::HTTP::Patch.new(uri, @headers)
-                when 'POST'   then Net::HTTP::Post.new(uri, @headers)
-                when 'PUT'    then Net::HTTP::Put.new(uri, @headers)
-                when 'DELETE' then Net::HTTP::Delete.new(uri, @headers)
-                else               abort('Unknown method: ' + method)
-                end
+          req = http_method(method, uri)
 
           # Do the request
           http.request(req, body.to_json)
         end
-      rescue EOFError
-        abort('Error: could not connect to server - connection refused')
-      rescue Exception => e
+      rescue Timeout::Error, Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError,
+             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
         abort("Error: #{e}")
       end
 
-      # Parse and return JSON
-      begin
-        JSON.parse response.body
-      rescue JSON::ParserError
-        abort("Non-JSON response: #{response.body}")
-      end
+      response_decode(response)
     end
 
     # Do a DELETE request

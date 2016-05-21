@@ -8,18 +8,12 @@ module PDNS
     attr_reader :version
 
     ## Main methods
-    def servers(server_id = nil)
-      return Server.new(server_id) unless server_id.nil?
+    def servers(id = nil)
+      return Server.new(@url, id) unless id.nil?
 
       # Return a hash of server objects
-      servers = @@api.get('/servers')
-      servers.map! do |info|
-        id = info['id']
-        [id, Server.new(id, info)]
-      end
-      servers.to_h
-
-      # TODO: /servers: PUT, POST, DELETE
+      servers = @@api.get "#{@url}/servers"
+      servers.map! { |s| [s['id'], Server.new(@url, s['id'], s)] }.to_h
     end
 
     alias server servers
