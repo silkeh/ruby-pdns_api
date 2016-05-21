@@ -138,6 +138,7 @@ class PDNS
   # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
   def http(method, uri, body = nil)
     # Start an HTTP connection
+    begin
     @last_res = Net::HTTP.start(@host, @port) do |http|
       # Creat uri
       uri = @base + uri unless @base.nil?
@@ -154,6 +155,9 @@ class PDNS
 
       # Do the request
       http.request(req, body.to_json)
+    end
+    rescue e => error
+      abort('Error: ' + error)
     end
 
     # Parse and return JSON
@@ -245,6 +249,8 @@ class PDNS
 
     def apply(rrsets)
       rrsets.map! do |rrset|
+        rrset[:records] = [rrset[:records]] if rrset[:records].is_a?(String)
+        abort('Error: records needs to be array') unless rrset[:records].is_a?(Array)
         rrset[:records].map! do |record|
           record = {
             'content'  => record[:content],
@@ -261,33 +267,16 @@ class PDNS
 
         # Convert symbols to strings
         rrset.map { |symbol, value| [symbol.to_s, value] }.to_h
-        # {
-        #     'name'       => rrset[:name],
-        #     'type'       => rrset[:type],
-        #     'ttl'        => rrset[:ttl],
-        #     'changetype' => rrset[:change_type],
-        #     'records'    => rrset[:records],
-        #     'comments'   => rrset[:comments],
-        # }
       end
       modify('rrsets' => rrsets)
     end
 
     def create_records(rrset)
+      abort('Error: no records for update') unless rrset.key?(:records)
       rrset[:records].map do |value|
         value = { content: value } if value.is_a?(String)
         value
       end
-    end
-
-    def update(*rrsets)
-      # Set type and format records
-      rrsets.map! do |rrset|
-        rrset[:changetype] = 'REPLACE'
-        rrset[:records] = create_records(rrset)
-        rrset
-      end
-      apply(rrsets)
     end
 
     def add(*rrsets)
@@ -305,6 +294,16 @@ class PDNS
         end
         rrset[:records] = current + create_records(rrset)
         rrset[:changetype] = 'REPLACE'
+        rrset
+      end
+      apply(rrsets)
+    end
+
+    def update(*rrsets)
+      # Set type and format records
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'REPLACE'
+        rrset[:records] = create_records(rrset)
         rrset
       end
       apply(rrsets)
