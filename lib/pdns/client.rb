@@ -1,8 +1,9 @@
+require 'pdns/version'
+require 'pdns/api'
+require 'pdns/server'
+
 # PDNS client
 module PDNS
-  require_relative 'api'
-  require_relative 'server'
-
   # Client
   class Client < API
     attr_reader :version

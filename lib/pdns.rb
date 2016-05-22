@@ -1,3 +1,6 @@
+require 'json'
+require 'net/http'
+
 # PDNS module
 module PDNS
   require_relative 'pdns/client'

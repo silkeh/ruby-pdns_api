@@ -1,11 +1,11 @@
+require 'pdns/config'
+require 'pdns/override'
+require 'pdns/zone'
+
 # PDNS Server
 module PDNS
   # PDNS Server
   class Server < API
-    require_relative 'config'
-    require_relative 'override'
-    require_relative 'zone'
-
     attr_reader :id, :url
 
     def initialize(t_url, id, info = {})

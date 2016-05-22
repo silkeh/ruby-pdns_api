@@ -1,10 +1,7 @@
-require 'json'
-require 'net/http'
+require 'pdns/http'
 
 # PDNS API interface
 module PDNS
-  require_relative 'http'
-
   # Class for interacting with the API
   class API
     def initialize(args)

@@ -1,6 +1,3 @@
-require 'json'
-require 'net/http'
-
 # PDNS HTTP API interface
 module PDNS
   # Class for doing HTTP requests
