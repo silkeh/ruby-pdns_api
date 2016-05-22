@@ -34,16 +34,21 @@ module PDNS
     def info(info = nil)
       return @info if info.nil?
 
-      @info.merge!(hash_sym_to_string(info))
+      @info.merge!(info)
     end
 
     ## Helper methods
 
-    def hash_sym_to_string(hash)
+    def ensure_array(item)
+      return item if item.is_a? Array
+      [item]
+    end
+
+    def self.hash_sym_to_string(hash)
       hash.map { |symbol, value| [symbol.to_s, value] }.to_h
     end
 
-    def hash_string_to_sym(hash)
+    def self.hash_string_to_sym(hash)
       hash.map { |string, value| [string.to_sym, value] }.to_h
     end
   end

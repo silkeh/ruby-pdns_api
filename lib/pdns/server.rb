@@ -49,7 +49,7 @@ module PDNS
 
       # Get all current configuration
       config = @@api.get("#{@url}/config")
-      config.map { |c| [c['name'], c['value']] }.to_h
+      config.map { |c| [c[:name], c[:value]] }.to_h
     end
 
     # Get or set server overrides, not yet implemented
@@ -57,7 +57,7 @@ module PDNS
       return Override.new(@url, id) unless id.nil?
 
       overrides = @@api.get("#{@url}/config")
-      overrides.map { |o| [o['id'], Override.new(@url, o['id'], o)] }.to_h
+      overrides.map { |o| [o[:id], Override.new(@url, o[:id], o)] }.to_h
     end
 
     # Get zones or create one
@@ -65,7 +65,7 @@ module PDNS
       return Zone.new(@url, zone_id) unless zone_id.nil?
 
       zones = @@api.get("#{@url}/zones")
-      zones.map { |z| [z['id'], Zone.new(@url, z['id'], z)] }.to_h
+      zones.map { |z| [z[:id], Zone.new(@url, z[:id], z)] }.to_h
     end
 
     alias override overrides

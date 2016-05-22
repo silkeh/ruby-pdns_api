@@ -36,9 +36,9 @@ module PDNS
 
       # Parse and return JSON
       begin
-        JSON.parse response.body
+        JSON.parse(response.body, symbolize_names: true)
       rescue JSON::ParserError
-        { 'error' => 'Non-JSON response', 'result' => response.body }
+        { error: 'Non-JSON response', result: response.body }
       end
     end
 

@@ -14,7 +14,7 @@ module PDNS
 
       # Return a hash of server objects
       servers = @@api.get "#{@url}/servers"
-      servers.map! { |s| [s['id'], Server.new(@url, s['id'], s)] }.to_h
+      servers.map! { |s| [s[:id], Server.new(@url, s[:id], s)] }.to_h
     end
 
     alias server servers

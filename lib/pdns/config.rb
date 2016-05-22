@@ -15,14 +15,14 @@ module PDNS
     ## Simple interfaces to metadata
     # Get/set config value
     def value(value = nil)
-      return @info['value'] if value.nil?
-      @info = { 'type' => 'ConfigSetting', 'name' => @name, 'value' => value }
+      return @info[:value] if value.nil?
+      @info = { type: 'ConfigSetting', namen: @name, value: value }
     end
 
     # Get configuration value
     def get
       res = @@api.get(@url)
-      return value if res.key? 'value'
+      return value if res.key? :value
     end
 
     # Change configuration

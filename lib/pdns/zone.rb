@@ -18,7 +18,9 @@ module PDNS
 
     # Modifies present RRsets and comments.
     def modify(rrsets)
-      @@api.patch(@url, rrsets)
+      rrsets.map! { |rrset| format_records(rrset) if rrset.key?(:records) }
+
+      @@api.patch(@url, rrsets: rrsets)
     end
 
     # Modifies basic zone data (metadata).
@@ -59,10 +61,10 @@ module PDNS
       metadata = @@api.get("#{@url}/metadata")
 
       # Check for errors
-      return metadata if metadata.is_a?(Hash) && metadata.key?('error')
+      return metadata if metadata.is_a?(Hash) && metadata.key?(:error)
 
       # Convert metadata to hash
-      metadata.map! { |c| [c['kind'], c['metadata']] }.to_h
+      metadata.map! { |c| [c[:kind], c[:metadata]] }.to_h
     end
 
     # Change cryptokeys for a zone
@@ -73,56 +75,40 @@ module PDNS
       cryptokeys = @@api.get("#{@url}/cryptokeys")
 
       # Convert cryptokeys to hash
-      cryptokeys.map! { |c| [c['id'], c] }.to_h
+      cryptokeys.map! { |c| [c[:id], CryptoKey.new(@url, c[:id], c)] }.to_h
     end
 
     ## Additional methods
+
+    # Add required items to records in an rrset
     def format_records(rrset)
-      # Convert records string to single element array
-      rrset[:records] = [rrset[:records]] if rrset[:records].is_a?(String)
+      # Abort if rrset is something else than an array
+      abort('Error: records needs to be array') unless rrset[:records].is_a? Array
 
-      # Abort if it is something else
-      abort('Error: records needs to be array') unless rrset[:records].is_a?(Array)
-
-      # Format the records correctly
+      # Ensure existence of required keys
       rrset[:records].map! do |record|
-        record = {
-          'content'  => record[:content],
-          'disabled' => !!record[:disabled] || !!rrset[:disabled],
-          'set-ptr'  => !!record[:set_ptr]
-        }
+        # Ensure content
+        record = { content: record } if record.is_a? String
+
+        # Add disabled and set_ptr
+        record.merge!(
+          disabled: !!record[:disabled] || !!rrset[:disabled],
+          set_ptr:  !!record[:set_ptr]
+        )
+        # Replace some symbols
+        record[:'set-ptr'] = record.delete :set_ptr
+
+        # Return record
         next record unless @@version == 0
+
+        # But add some more for APIv0
         record.merge(
-          'name' => rrset[:name],
-          'type' => rrset[:type],
-          'ttl'  => rrset[:ttl]
+          name: rrset[:name],
+          type: rrset[:type],
+          ttl:  rrset[:ttl]
         )
       end
       rrset
-    end
-
-    def apply(rrsets)
-      rrsets.map! do |rrset|
-        # Format the records in the RRset
-        rrset = format_records(rrset) if rrset.key?(:records)
-
-        # Convert symbols to strings
-        hash_sym_to_string(rrset)
-      end
-
-      # Apply modification
-      modify('rrsets' => rrsets)
-    end
-
-    def create_records(rrset)
-      abort('Error: no records for add/update') unless rrset.key?(:records)
-
-      rrset[:records] = [rrset[:records]] if rrset[:records].is_a?(String)
-
-      rrset[:records].map do |value|
-        value = { content: value } if value.is_a?(String)
-        value
-      end
     end
 
     # Add records to the ones already existing
@@ -132,23 +118,22 @@ module PDNS
       data = get
 
       # Return any errors
-      return data if data.key?('error')
+      return data if data.key?(:error)
 
       # Run v0 version
       return add_v0(rrsets, data) if @@version == 0
 
       # Add these records to the rrset
       rrsets.map! do |rrset|
-        current = data['rrsets'].select do |r|
-          r['name'] == rrset[:name] && r['type'] == rrset[:type]
-        end
-        current = current.first['records'].map { |r| hash_string_to_sym(r) }
+        # Get current data from rrset
+        current = data[:rrsets].select { |r| r[:name] == rrset[:name] && r[:type] == rrset[:type] }
 
-        rrset[:records] = current + create_records(rrset)
+        # Merge data
+        rrset[:records]    = current.first[:records] + ensure_array(rrset[:records])
         rrset[:changetype] = 'REPLACE'
         rrset
       end
-      apply(rrsets)
+      modify(rrsets)
     end
 
     # Add records to the ones already existing
@@ -156,30 +141,30 @@ module PDNS
     def add_v0(rrsets, data)
       # Add these records to the rrset
       rrsets.map! do |rrset|
-        current = data['records'].select do |r|
-          r['name'] == rrset[:name] && r['type'] == rrset[:type]
+        current = data[:records].select do |r|
+          r[:name] == rrset[:name] && r[:type] == rrset[:type]
         end
         current.map! do |record|
           {
-            content:  record['content'],
-            disabled: record['disabled']
+            content:  record[:content],
+            disabled: record[:disabled]
           }
         end
-        rrset[:records] = current + create_records(rrset)
+        rrset[:records] = current + ensure_array(rrset[:records])
         rrset[:changetype] = 'REPLACE'
         rrset
       end
-      apply(rrsets)
+      modify(rrsets)
     end
 
     def update(*rrsets)
       # Set type and format records
       rrsets.map! do |rrset|
         rrset[:changetype] = 'REPLACE'
-        rrset[:records] = create_records(rrset)
+        rrset[:records] = ensure_array(rrset[:records])
         rrset
       end
-      apply(rrsets)
+      modify(rrsets)
     end
 
     def remove(*rrsets)
