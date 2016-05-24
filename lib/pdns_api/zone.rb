@@ -81,6 +81,19 @@ module PDNS
 
     ## Additional methods
 
+    def format_single_record(record)
+      # Ensure content
+      record = { content: record } if record.is_a? String
+
+      # Add disabled and set_ptr
+      record[:disabled] = !!record[:disabled]
+      record[:set_ptr]  = !!record[:set_ptr]
+
+      # Replace some symbols
+      record[:'set-ptr'] = record.delete :set_ptr
+      record
+    end
+
     # Add required items to records in an rrset
     def format_records(rrset)
       # Abort if rrset is something else than an array
@@ -88,24 +101,17 @@ module PDNS
 
       # Ensure existence of required keys
       rrset[:records].map! do |record|
-        # Ensure content
-        record = { content: record } if record.is_a? String
+        # Format the record content
+        record = format_single_record(record)
 
-        # Add disabled and set_ptr
-        record[:disabled] = !!record[:disabled] || !!rrset[:disabled]
-        record[:set_ptr] = !!record[:set_ptr]
-        # Replace some symbols
-        record[:'set-ptr'] = record.delete :set_ptr
+        # Add disabled from the rrset
+        record[:disabled] ||= !!rrset[:disabled]
 
         # Return record
         next record unless @version == 0
 
         # But add some more for APIv0
-        record.merge(
-          name: rrset[:name],
-          type: rrset[:type],
-          ttl:  rrset[:ttl]
-        )
+        record.merge(name: rrset[:name], type: rrset[:type], ttl: rrset[:ttl])
       end
       rrset
     end

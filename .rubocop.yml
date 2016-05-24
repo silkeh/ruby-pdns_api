@@ -1,2 +1,9 @@
+AllCops:
+  Include:
+    - 'lib/**/*'
+
 Metrics/LineLength:
   Max: 100
+
+Style/DoubleNegation:
+  Enabled: false

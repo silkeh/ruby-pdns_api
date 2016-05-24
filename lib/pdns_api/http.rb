@@ -54,8 +54,7 @@ module PDNS
           # Do the request
           http.request(req, body.to_json)
         end
-      rescue Timeout::Error, Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError,
-             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+      rescue StandardError, Timeout::Error => e
         abort("Error: #{e}")
       end
 
