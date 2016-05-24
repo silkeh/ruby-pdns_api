@@ -178,7 +178,7 @@ module PDNS
         rrset[:changetype] = 'DELETE'
         rrset
       end
-      apply(rrsets)
+      modify(rrsets)
     end
   end
 end
