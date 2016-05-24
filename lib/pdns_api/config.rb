@@ -4,7 +4,8 @@ module PDNS
   class Config < API
     attr_accessor :name, :value
 
-    def initialize(t_url, name, value = nil)
+    def initialize(http, t_url, name, value = nil)
+      @http  = http
       @name  = name
       @r_url = "#{t_url}/config"
       @url   = "#{t_url}/config/#{name}"
@@ -21,14 +22,14 @@ module PDNS
 
     # Get configuration value
     def get
-      res = @@api.get(@url)
+      res = @http.get(@url)
       return value if res.key? :value
     end
 
     # Change configuration
     def change(value = nil)
       value(value)
-      @@api.put(@url, @info)
+      @http.put(@url, @info)
     end
   end
 end

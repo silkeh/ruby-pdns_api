@@ -2,7 +2,8 @@
 module PDNS
   # Zone Metadata
   class Metadata < API
-    def initialize(t_url, kind, info = {})
+    def initialize(http, t_url, kind, info = {})
+      @http  = http
       @kind  = kind
       @info  = info
       @r_url = "#{t_url}/metadata"
@@ -24,14 +25,14 @@ module PDNS
 
     # Retrieve metadata value
     def get
-      res = @@api.get @url
+      res = @http.get @url
       return value if res.key? :value
     end
 
     # Change metadata
     def change(value)
       value(value)
-      @@api.put(@url, @info)
+      @http.put(@url, @info)
     end
   end
 end

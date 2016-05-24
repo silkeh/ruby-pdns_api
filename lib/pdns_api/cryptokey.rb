@@ -2,7 +2,8 @@
 module PDNS
   # Zone CryptoKey
   class CryptoKey < API
-    def initialize(t_url, id, info = {})
+    def initialize(http, t_url, id, info = {})
+      @http  = http
       @id    = id
       @info  = info
       @r_url = "#{t_url}/metadata"
@@ -13,7 +14,7 @@ module PDNS
 
     # Change cryptokey information
     def change(rrsets)
-      @@api.put(@url, rrsets)
+      @http.put(@url, rrsets)
     end
   end
 end

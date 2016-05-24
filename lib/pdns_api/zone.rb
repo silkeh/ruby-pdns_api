@@ -7,7 +7,8 @@ module PDNS
   class Zone < API
     attr_reader :id, :url
 
-    def initialize(t_url, id, info = {})
+    def initialize(http, t_url, id, info = {})
+      @http  = http
       @id    = id
       @info  = info
       @r_url = "#{t_url}/zones"
@@ -20,45 +21,45 @@ module PDNS
     def modify(rrsets)
       rrsets.map! { |rrset| format_records(rrset) if rrset.key?(:records) }
 
-      @@api.patch(@url, rrsets: rrsets)
+      @http.patch(@url, rrsets: rrsets)
     end
 
     # Modifies basic zone data (metadata).
     def change(rrsets)
-      @@api.put(@url, rrsets)
+      @http.put(@url, rrsets)
     end
 
     ## Zone actions
 
     # Notify slaves for a zone
     def notify
-      @@api.put "#{@url}/notify"
+      @http.put "#{@url}/notify"
     end
 
     # Get the AXFR for a zone
     def axfr_retrieve
-      @@api.put "#{@url}/axfr-retrieve"
+      @http.put "#{@url}/axfr-retrieve"
     end
 
     # Export a zone
     def export
-      @@api.get "#{@url}/export"
+      @http.get "#{@url}/export"
     end
 
     # Check a zone
     def check
-      @@api.get "#{@url}/check"
+      @http.get "#{@url}/check"
     end
 
     ## Zone resources
 
     # Manipulate metadata for a zone
     def metadata(kind = nil, value = nil)
-      return Metadata.new(@url, kind, value).create unless kind.nil? || value.nil?
-      return Metadata.new(@url, kind) unless kind.nil?
+      return Metadata.new(@http, @url, kind, value).create unless kind.nil? || value.nil?
+      return Metadata.new(@http, @url, kind) unless kind.nil?
 
       # Get all current metadata
-      metadata = @@api.get("#{@url}/metadata")
+      metadata = @http.get("#{@url}/metadata")
 
       # Check for errors
       return metadata if metadata.is_a?(Hash) && metadata.key?(:error)
@@ -69,13 +70,13 @@ module PDNS
 
     # Change cryptokeys for a zone
     def cryptokeys(id = nil)
-      return CryptoKey.new(@url, id) unless id.nil?
+      return CryptoKey.new(@http, @url, id) unless id.nil?
 
       # Get all current metadata
-      cryptokeys = @@api.get("#{@url}/cryptokeys")
+      cryptokeys = @http.get("#{@url}/cryptokeys")
 
       # Convert cryptokeys to hash
-      cryptokeys.map! { |c| [c[:id], CryptoKey.new(@url, c[:id], c)] }.to_h
+      cryptokeys.map! { |c| [c[:id], CryptoKey.new(@http, @url, c[:id], c)] }.to_h
     end
 
     ## Additional methods

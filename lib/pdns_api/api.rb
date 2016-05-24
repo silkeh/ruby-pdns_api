@@ -5,29 +5,29 @@ module PDNS
   # Class for interacting with the API
   class API
     def initialize(args)
-      @@version = args.key?(:version) ? args[:version] : 1
-      @@api     = PDNS::HTTP.new(args)
-      @url      = @@api.uri
-      @r_url    = @url
-      @info     = {}
+      @version = args.key?(:version) ? args[:version] : 1
+      @http    = PDNS::HTTP.new(args)
+      @url     = @http.uri
+      @r_url   = @url
+      @info    = {}
     end
 
     ## Standard manipulation methods
 
     # Get information for this object
     def get
-      @info = @@api.get @url
+      @info = @http.get @url
     end
 
     # Delete this object
     def delete
-      @@api.delete @url
+      @http.delete @url
     end
 
     # Create this object on the server
     def create(info = nil)
       info(info)
-      @@api.post(@r_url, @info)
+      @http.post(@r_url, @info)
     end
 
     # Get/set info
