@@ -92,15 +92,13 @@ module PDNS
         record = { content: record } if record.is_a? String
 
         # Add disabled and set_ptr
-        record.merge!(
-          disabled: !!record[:disabled] || !!rrset[:disabled],
-          set_ptr:  !!record[:set_ptr]
-        )
+        record[:disabled] = !!record[:disabled] || !!rrset[:disabled]
+        record[:set_ptr] = !!record[:set_ptr]
         # Replace some symbols
         record[:'set-ptr'] = record.delete :set_ptr
 
         # Return record
-        next record unless @@version == 0
+        next record unless @version == 0
 
         # But add some more for APIv0
         record.merge(
@@ -122,7 +120,7 @@ module PDNS
       return data if data.key?(:error)
 
       # Run v0 version
-      return add_v0(rrsets, data) if @@version == 0
+      return add_v0(rrsets, data) if @version == 0
 
       # Add these records to the rrset
       rrsets.map! do |rrset|
