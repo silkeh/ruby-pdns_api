@@ -1,6 +1,6 @@
-require 'pdns/config'
-require 'pdns/override'
-require 'pdns/zone'
+require 'pdns_api/config'
+require 'pdns_api/override'
+require 'pdns_api/zone'
 
 # PDNS Server
 module PDNS

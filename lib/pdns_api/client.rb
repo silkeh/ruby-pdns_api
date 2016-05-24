@@ -1,6 +1,6 @@
-require 'pdns/version'
-require 'pdns/api'
-require 'pdns/server'
+require 'pdns_api/version'
+require 'pdns_api/api'
+require 'pdns_api/server'
 
 # PDNS client
 module PDNS

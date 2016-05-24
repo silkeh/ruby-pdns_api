@@ -1,4 +1,4 @@
-require 'pdns/http'
+require 'pdns_api/http'
 
 # PDNS API interface
 module PDNS
