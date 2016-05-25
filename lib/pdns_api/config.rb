@@ -1,9 +1,24 @@
-# PDNS Server config
+##
+#
 module PDNS
-  # Server config
+  ##
+  # Configuration option for a DNS Server.
   class Config < API
-    attr_accessor :name, :value
+    ##
+    # Name of the configuration option.
+    attr_accessor :name
 
+    ##
+    # Value of the configuration option.
+    attr_accessor :value
+
+    ##
+    # Create a configuration option object.
+    #
+    # +http+:   An HTTP object for interaction with the PowerDNS server.
+    # +parent+: This object's parent.
+    # +name+:   Name of the configuration option.
+    # +value+:  Optional value of the configuration option.
     def initialize(http, parent, name, value = nil)
       @class  = :config
       @http   = http
@@ -14,21 +29,31 @@ module PDNS
       value(@value)
     end
 
-    ## Simple interfaces to metadata
-    # Get/set config value
+    ##
+    # Get or set the +value+ attribute.
+    #
+    # If +value+ is not set the current +value+ is returned.
+    # If +value+ is set the object's +value+ is updated and +info+ is set and returned
     def value(value = nil)
-      return @info[:value] if value.nil?
+      return @value if value.nil?
       @value = value
       @info  = { type: 'ConfigSetting', name: @name, value: value }
     end
 
-    # Get configuration value
+    ##
+    # Get the current information.
+    # This also updates +value+.
     def get
       res = @http.get(@url)
-      return value if res.key? :value
+      value(res[:value]) if res.key? :value
+      res
     end
 
-    # Change configuration
+    ##
+    # Updates the object on the server.
+    #
+    # If +value+ is set, the current +value+ is used.
+    # If +value+ is not set, +value+ is updated and then used.
     def change(value = nil)
       value(value)
       @http.put(@url, @info)
