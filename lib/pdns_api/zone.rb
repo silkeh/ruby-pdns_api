@@ -109,7 +109,7 @@ module PDNS
         record[:disabled] ||= !!rrset[:disabled]
 
         # Return record
-        next record unless @version == 0
+        next record unless @http.version == 0
 
         # But add some more for APIv0
         record.merge(name: rrset[:name], type: rrset[:type], ttl: rrset[:ttl])
@@ -127,7 +127,7 @@ module PDNS
       return data if data.key?(:error)
 
       # Run v0 version
-      return add_v0(rrsets, data) if @version == 0
+      return add_v0(rrsets, data) if @http.version == 0
 
       # Add these records to the rrset
       rrsets.map! do |rrset|
