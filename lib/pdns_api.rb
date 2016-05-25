@@ -1,7 +1,8 @@
 require 'json'
 require 'net/http'
 
-# PDNS module
+##
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   require_relative 'pdns_api/client'
 
