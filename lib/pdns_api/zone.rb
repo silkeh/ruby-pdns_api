@@ -97,9 +97,6 @@ module PDNS
 
     # Add required items to records in an rrset
     def format_records(rrset)
-      # Abort if rrset is something else than an array
-      abort('Error: records needs to be array') unless rrset[:records].is_a? Array
-
       # Ensure existence of required keys
       rrset[:records].map! do |record|
         # Format the record content
@@ -126,41 +123,36 @@ module PDNS
       # Return any errors
       return data if data.key?(:error)
 
-      # Run v0 version
-      return add_v0(rrsets, data) if @http.version == 0
-
       # Add these records to the rrset
       rrsets.map! do |rrset|
         # Get current data from rrset
-        current = data[:rrsets].select { |r| r[:name] == rrset[:name] && r[:type] == rrset[:type] }
+        current = current_records(rrset, data)
 
         # Merge data
-        rrset[:records]    = current.first[:records] + ensure_array(rrset[:records])
+        rrset[:records]    = current + ensure_array(rrset[:records])
         rrset[:changetype] = 'REPLACE'
         rrset
       end
       modify(rrsets)
     end
 
-    # Add records to the ones already existing
-    # Only works from API v1 and down
-    def add_v0(rrsets, data)
-      # Add these records to the rrset
-      rrsets.map! do |rrset|
-        current = data[:records].select do |r|
-          r[:name] == rrset[:name] && r[:type] == rrset[:type]
-        end
-        current.map! do |record|
-          {
-            content:  record[:content],
-            disabled: record[:disabled]
-          }
-        end
-        rrset[:records] = current + ensure_array(rrset[:records])
-        rrset[:changetype] = 'REPLACE'
-        rrset
+    def current_records(rrset, data)
+      # Get the records from the data, `records` is v0, `rrset` is v1
+      records = data[:records] || data[:rrset]
+
+      # Select records matching type/name
+      current = records.select { |r| r[:name] == rrset[:name] && r[:type] == rrset[:type] }
+
+      # Get only content/disabled for API v0
+      if @http.version == 0
+        current.map! { |record| { content:  record[:content], disabled: record[:disabled] } }
       end
-      modify(rrsets)
+
+      # For API v1 there is only one element containing all records
+      current = current.first[:records] unless @http.version == 0
+
+      # Return the records
+      current
     end
 
     def update(*rrsets)
