@@ -4,11 +4,14 @@ require 'pdns_api/http'
 module PDNS
   # Class for interacting with the API
   class API
+    attr_reader :url, :class, :version
+
     def initialize(args)
-      @version = args.key?(:version) ? args[:version] : 1
+      @class   = :client
       @http    = PDNS::HTTP.new(args)
+      @version = @http.version
+      @parent  = self
       @url     = @http.uri
-      @r_url   = @url
       @info    = {}
     end
 
@@ -27,7 +30,7 @@ module PDNS
     # Create this object on the server
     def create(info = nil)
       info(info)
-      @http.post(@r_url, @info)
+      @http.post("#{@parent.url}/#{@class}", @info)
     end
 
     # Get/set info

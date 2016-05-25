@@ -10,11 +10,11 @@ module PDNS
 
     ## Main methods
     def servers(id = nil)
-      return Server.new(@http, @url, id) unless id.nil?
+      return Server.new(@http, self, id) unless id.nil?
 
       # Return a hash of server objects
       servers = @http.get "#{@url}/servers"
-      servers.map! { |s| [s[:id], Server.new(@url, s[:id], s)] }.to_h
+      servers.map! { |s| [s[:id], Server.new(@http, self, s[:id], s)] }.to_h
     end
 
     alias server servers

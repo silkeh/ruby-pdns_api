@@ -2,12 +2,13 @@
 module PDNS
   # Zone CryptoKey
   class CryptoKey < API
-    def initialize(http, t_url, id, info = {})
-      @http  = http
-      @id    = id
-      @info  = info
-      @r_url = "#{t_url}/metadata"
-      @url   = "#{t_url}/metadata/#{kind}"
+    def initialize(http, parent, id, info = {})
+      @class  = :cryptokeys
+      @http   = http
+      @parent = parent
+      @id     = id
+      @info   = info
+      @url    = "#{parent.url}/#{@class}/#{id}"
     end
 
     ## Simple interfaces to metadata

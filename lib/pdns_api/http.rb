@@ -3,6 +3,7 @@ module PDNS
   # Class for doing HTTP requests
   class HTTP
     attr_accessor :headers
+    attr_reader   :version
 
     def initialize(args)
       @host    = args[:host]

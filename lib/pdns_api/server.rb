@@ -6,14 +6,15 @@ require 'pdns_api/zone'
 module PDNS
   # PDNS Server
   class Server < API
-    attr_reader :id, :url
+    attr_reader :id
 
-    def initialize(http, t_url, id, info = {})
-      @http  = http
-      @id    = id
-      @r_url = "#{t_url}/servers"
-      @url   = "#{t_url}/servers/#{id}"
-      @info  = info
+    def initialize(http, parent, id, info = {})
+      @class  = :servers
+      @http   = http
+      @parent = parent
+      @id     = id
+      @url    = "#{parent.url}/#{@class}/#{id}"
+      @info   = info
     end
 
     ## Server interfaces
@@ -45,8 +46,8 @@ module PDNS
 
     # Get or set server config
     def config(name = nil, value = nil)
-      return Config.new(@http, @url, name, value).create unless name.nil? || value.nil?
-      return Config.new(@http, @url, name) unless name.nil?
+      return Config.new(@http, self, name, value).create unless name.nil? || value.nil?
+      return Config.new(@http, self, name) unless name.nil?
 
       # Get all current configuration
       config = @http.get("#{@url}/config")
@@ -55,18 +56,18 @@ module PDNS
 
     # Get or set server overrides, not yet implemented
     def overrides(id = nil)
-      return Override.new(@http, @url, id) unless id.nil?
+      return Override.new(@http, self, id) unless id.nil?
 
       overrides = @http.get("#{@url}/config")
-      overrides.map { |o| [o[:id], Override.new(@http, @url, o[:id], o)] }.to_h
+      overrides.map { |o| [o[:id], Override.new(@http, self, o[:id], o)] }.to_h
     end
 
     # Get zones or create one
     def zones(zone_id = nil)
-      return Zone.new(@http, @url, zone_id) unless zone_id.nil?
+      return Zone.new(@http, self, zone_id) unless zone_id.nil?
 
       zones = @http.get("#{@url}/zones")
-      zones.map { |z| [z[:id], Zone.new(@http, @url, z[:id], z)] }.to_h
+      zones.map { |z| [z[:id], Zone.new(@http, self, z[:id], z)] }.to_h
     end
 
     alias override overrides

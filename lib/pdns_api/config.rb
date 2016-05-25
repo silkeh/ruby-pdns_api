@@ -4,20 +4,22 @@ module PDNS
   class Config < API
     attr_accessor :name, :value
 
-    def initialize(http, t_url, name, value = nil)
-      @http  = http
-      @name  = name
-      @r_url = "#{t_url}/config"
-      @url   = "#{t_url}/config/#{name}"
-      @value = value.get if value.nil?
-      value(value)
+    def initialize(http, parent, name, value = nil)
+      @class  = :config
+      @http   = http
+      @parent = parent
+      @name   = name
+      @url    = "#{parent.url}/#{@class}/#{name}"
+      @value  = value.get if value.nil?
+      value(@value)
     end
 
     ## Simple interfaces to metadata
     # Get/set config value
     def value(value = nil)
       return @info[:value] if value.nil?
-      @info = { type: 'ConfigSetting', namen: @name, value: value }
+      @value = value
+      @info  = { type: 'ConfigSetting', name: @name, value: value }
     end
 
     # Get configuration value

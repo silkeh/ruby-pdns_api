@@ -2,12 +2,13 @@
 module PDNS
   # Zone Metadata
   class Metadata < API
-    def initialize(http, t_url, kind, info = {})
-      @http  = http
-      @kind  = kind
-      @info  = info
-      @r_url = "#{t_url}/metadata"
-      @url   = "#{t_url}/metadata/#{kind}"
+    def initialize(http, parent, kind, info = {})
+      @class  = :metadata
+      @http   = http
+      @parent = parent
+      @kind   = kind
+      @info   = info
+      @url    = "#{parent.url}/metadata/#{kind}"
     end
 
     ## Simple interfaces to metadata

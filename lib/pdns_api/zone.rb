@@ -5,14 +5,15 @@ module PDNS
 
   # Zone
   class Zone < API
-    attr_reader :id, :url
+    attr_reader :id
 
-    def initialize(http, t_url, id, info = {})
-      @http  = http
-      @id    = id
-      @info  = info
-      @r_url = "#{t_url}/zones"
-      @url   = "#{t_url}/zones/#{id}"
+    def initialize(http, parent, id, info = {})
+      @class  = :zones
+      @http   = http
+      @parent = parent
+      @id     = id
+      @info   = info
+      @url    = "#{parent.url}/#{@class}/#{id}"
     end
 
     ## Zone interfaces
@@ -55,8 +56,8 @@ module PDNS
 
     # Manipulate metadata for a zone
     def metadata(kind = nil, value = nil)
-      return Metadata.new(@http, @url, kind, value).create unless kind.nil? || value.nil?
-      return Metadata.new(@http, @url, kind) unless kind.nil?
+      return Metadata.new(@http, self, kind, value).create unless kind.nil? || value.nil?
+      return Metadata.new(@http, self, kind) unless kind.nil?
 
       # Get all current metadata
       metadata = @http.get("#{@url}/metadata")
@@ -70,13 +71,13 @@ module PDNS
 
     # Change cryptokeys for a zone
     def cryptokeys(id = nil)
-      return CryptoKey.new(@http, @url, id) unless id.nil?
+      return CryptoKey.new(@http, self, id) unless id.nil?
 
       # Get all current metadata
       cryptokeys = @http.get("#{@url}/cryptokeys")
 
       # Convert cryptokeys to hash
-      cryptokeys.map! { |c| [c[:id], CryptoKey.new(@http, @url, c[:id], c)] }.to_h
+      cryptokeys.map! { |c| [c[:id], CryptoKey.new(@http, self, c[:id], c)] }.to_h
     end
 
     ## Additional methods
