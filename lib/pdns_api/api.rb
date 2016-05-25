@@ -12,20 +12,6 @@ module PDNS
 
     attr_reader :url, :class, :version
 
-    ##
-    # Creates a client object.
-    # The arguments are used to create an HTTP object,
-    # which is used by all created objects
-
-    def initialize(args)
-      @class   = :client
-      @http    = PDNS::HTTP.new(args)
-      @version = @http.version
-      @parent  = self
-      @url     = @http.uri
-      @info    = {}
-    end
-
     ## Standard manipulation methods
 
     ##
@@ -62,8 +48,6 @@ module PDNS
       @info.merge!(info)
     end
 
-    ## Helper methods
-
     ##
     # Ensure the object is an array.
     # If it is not, an array containing the item is returned
@@ -71,14 +55,6 @@ module PDNS
     def ensure_array(item)
       return item if item.is_a? Array
       [item]
-    end
-
-    def self.hash_sym_to_string(hash)
-      hash.map { |symbol, value| [symbol.to_s, value] }.to_h
-    end
-
-    def self.hash_string_to_sym(hash)
-      hash.map { |string, value| [string.to_sym, value] }.to_h
     end
   end
 end
