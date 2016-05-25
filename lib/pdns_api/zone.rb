@@ -20,7 +20,10 @@ module PDNS
 
     # Modifies present RRsets and comments.
     def modify(rrsets)
-      rrsets.map! { |rrset| format_records(rrset) if rrset.key?(:records) }
+      rrsets.map! do |rrset|
+        rrset = format_records(rrset) if rrset.key?(:records)
+        rrset
+      end
 
       @http.patch(@url, rrsets: rrsets)
     end
