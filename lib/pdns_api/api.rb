@@ -1,10 +1,21 @@
 require 'pdns_api/http'
 
-# PDNS API interface
+##
+# Module for interaction with the PowerDNS HTTP API.
+
 module PDNS
-  # Class for interacting with the API
+
+  ##
+  # The superclass for all PDNS objects.
+
   class API
+
     attr_reader :url, :class, :version
+
+    ##
+    # Creates a client object.
+    # The arguments are used to create an HTTP object,
+    # which is used by all created objects
 
     def initialize(args)
       @class   = :client
@@ -17,23 +28,34 @@ module PDNS
 
     ## Standard manipulation methods
 
-    # Get information for this object
+    ##
+    # Get the information of this object from the API
     def get
       @info = @http.get @url
     end
 
-    # Delete this object
+    ##
+    # Deletes this object
+
     def delete
       @http.delete @url
     end
 
-    # Create this object on the server
+    ##
+    # Creates this object on the server
+
     def create(info = nil)
       info(info)
       @http.post("#{@parent.url}/#{@class}", @info)
     end
 
-    # Get/set info
+    ##
+    # Get and set the object information.
+    # This does not cause an API request.
+    #
+    # If +info+ is set this method updates the current information.
+    #
+
     def info(info = nil)
       return @info if info.nil?
 
@@ -41,6 +63,10 @@ module PDNS
     end
 
     ## Helper methods
+
+    ##
+    # Ensure the object is an array.
+    # If it is not, an array containing the item is returned
 
     def ensure_array(item)
       return item if item.is_a? Array
