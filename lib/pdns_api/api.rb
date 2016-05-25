@@ -9,13 +9,11 @@ module PDNS
   # The superclass for all PDNS objects.
 
   class API
-
     attr_reader :url, :class, :version
 
-    ## Standard manipulation methods
-
     ##
-    # Get the information of this object from the API
+    # Get the information of this object from the API and use it
+    # to update the object's information.
     def get
       @info = @http.get @url
     end
