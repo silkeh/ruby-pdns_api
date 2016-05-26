@@ -1,58 +1,57 @@
 require 'pdns_api/http'
 
-# PDNS API interface
+##
+#
 module PDNS
-  # Class for interacting with the API
+  ##
+  # The superclass for all PDNS objects.
   class API
-    attr_reader :url, :class, :version
+    ##
+    # The url of the resource object.
+    attr_reader :url
 
-    def initialize(args)
-      @class   = :client
-      @http    = PDNS::HTTP.new(args)
-      @version = @http.version
-      @parent  = self
-      @url     = @http.uri
-      @info    = {}
-    end
+    ##
+    # The class of the resource object.
+    attr_reader :class
 
-    ## Standard manipulation methods
-
-    # Get information for this object
+    ##
+    # Gets the information of this object from the API and use it
+    # to update the object's information.
     def get
       @info = @http.get @url
     end
 
-    # Delete this object
+    ##
+    # Deletes this object
     def delete
       @http.delete @url
     end
 
-    # Create this object on the server
+    ##
+    # Creates this object on the server
     def create(info = nil)
       info(info)
       @http.post("#{@parent.url}/#{@class}", @info)
     end
 
-    # Get/set info
+    ##
+    # Gets and sets the object information.
+    # This does not cause an API request.
+    #
+    # If +info+ is set this method updates the current information.
+    #
     def info(info = nil)
       return @info if info.nil?
 
       @info.merge!(info)
     end
 
-    ## Helper methods
-
+    ##
+    # Ensures the object is an array.
+    # If it is not, an array containing the item is returned
     def ensure_array(item)
       return item if item.is_a? Array
       [item]
-    end
-
-    def self.hash_sym_to_string(hash)
-      hash.map { |symbol, value| [symbol.to_s, value] }.to_h
-    end
-
-    def self.hash_string_to_sym(hash)
-      hash.map { |string, value| [string.to_sym, value] }.to_h
     end
   end
 end

@@ -1,37 +1,65 @@
-# PDNS Zone Metadata
+##
+#
 module PDNS
-  # Zone Metadata
+  ##
+  # Metadata for a zone.
   class Metadata < API
-    def initialize(http, parent, kind, info = {})
+    ##
+    # The kind of metadata.
+    attr_accessor :kind
+
+    ##
+    # The value of the metadata.
+    attr_accessor :value
+
+    ##
+    # Creates a configuration option object.
+    #
+    # - +http+:   An HTTP object for interaction with the PowerDNS server.
+    # - +parent+: This object's parent.
+    # - +kind+:   Name of the metadata.
+    # - +value+:  Optional value of the metadata.
+    def initialize(http, parent, kind, value = [])
       @class  = :metadata
       @http   = http
       @parent = parent
       @kind   = kind
-      @info   = info
-      @url    = "#{parent.url}/metadata/#{kind}"
+      @url    = "#{parent.url}/#{@class}/#{kind}"
+      @value  = value.get if value.empty?
+      value(@value)
     end
 
-    ## Simple interfaces to metadata
-
-    # Set the metadata value
+    ##
+    # Gets or sets the +value+ attribute.
+    #
+    # If +value+ is not set the current +value+ is returned.
+    # If +value+ is set the object's +value+ is updated and +info+ is set and returned.
     def value(value = nil)
       return @info[:metadata] if value.nil?
 
       # Convert to array if value is string
-      value = [value] if value.is_a? String
+      value = ensure_array(value)
 
-      # Set info
-      @info = { type: 'Metadata', kind: @kind, metadata: value }
+      # Set value and info
+      @value = value
+      @info  = { type: 'Metadata', kind: @kind, metadata: value }
     end
 
-    # Retrieve metadata value
+    ##
+    # Gets the current information.
+    # This also updates +value+.
     def get
       res = @http.get @url
-      return value if res.key? :value
+      value(res[:value]) if res.key? :value
+      res
     end
 
-    # Change metadata
-    def change(value)
+    ##
+    # Updates the object on the server.
+    #
+    # If +value+ is set, the current +value+ is used.
+    # If +value+ is not set, +value+ is updated and then used.
+    def change(value = nil)
       value(value)
       @http.put(@url, @info)
     end

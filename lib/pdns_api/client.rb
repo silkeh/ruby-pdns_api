@@ -2,13 +2,36 @@ require 'pdns_api/version'
 require 'pdns_api/api'
 require 'pdns_api/server'
 
-# PDNS client
+##
+#
 module PDNS
-  # Client
+  ##
+  # Class for interaction with the top level API.
   class Client < API
+    ##
+    # The PowerDNS API version in use.
     attr_reader :version
 
-    ## Main methods
+    ##
+    # Creates a client object.
+    # +args+ is used to create an HTTP object,
+    # which is used by all created objects.
+    def initialize(args)
+      @class   = :client
+      @http    = PDNS::HTTP.new(args)
+      @version = @http.version
+      @parent  = self
+      @url     = @http.uri
+      @info    = {}
+    end
+
+    ##
+    # Returns existing or creates a +Server+ object.
+    #
+    # If +id+ is not set the current servers are returned in a hash
+    # containing +Server+ objects.
+    #
+    # If +id+ is set a +Server+ object with the provided ID is returned.
     def servers(id = nil)
       return Server.new(@http, self, id) unless id.nil?
 
