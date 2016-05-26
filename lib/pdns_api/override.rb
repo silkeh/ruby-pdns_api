@@ -11,10 +11,10 @@ module PDNS
     ##
     # Creates a configuration option object.
     #
-    # +http+:   An HTTP object for interaction with the PowerDNS server.
-    # +parent+: This object's parent.
-    # +id+:     ID of the override.
-    # +info+:   Optional information of the override.
+    # - +http+:   An HTTP object for interaction with the PowerDNS server.
+    # - +parent+: This object's parent.
+    # - +id+:     ID of the override.
+    # - +info+:   Optional information of the override.
     def initialize(http, parent, id, info = {})
       @class  = :overrides
       @http   = http

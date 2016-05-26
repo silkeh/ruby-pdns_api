@@ -14,7 +14,7 @@ module PDNS
 
     ##
     # Creates a client object.
-    # The arguments are used to create an HTTP object,
+    # +args+ is used to create an HTTP object,
     # which is used by all created objects.
     def initialize(args)
       @class   = :client

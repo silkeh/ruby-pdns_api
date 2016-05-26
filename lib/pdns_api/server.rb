@@ -15,10 +15,10 @@ module PDNS
     ##
     # Creates a Server object.
     #
-    # +http+:   An HTTP object for interaction with the PowerDNS server.
-    # +parent+: This object's parent.
-    # +id+:     ID of the server.
-    # +info+:   Optional information of the server.
+    # - +http+:   An HTTP object for interaction with the PowerDNS server.
+    # - +parent+: This object's parent.
+    # - +id+:     ID of the server.
+    # - +info+:   Optional information of the server.
     def initialize(http, parent, id, info = {})
       @class  = :servers
       @http   = http

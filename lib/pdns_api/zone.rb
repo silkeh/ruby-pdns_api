@@ -14,10 +14,10 @@ module PDNS
     ##
     # Creates a Zone object.
     #
-    # +http+:   An HTTP object for interaction with the PowerDNS server.
-    # +parent+: This object's parent.
-    # +id+:     ID of the zone.
-    # +info+:   Optional information of the zone.
+    # - +http+:   An HTTP object for interaction with the PowerDNS server.
+    # - +parent+: This object's parent.
+    # - +id+:     ID of the zone.
+    # - +info+:   Optional information of the zone.
     def initialize(http, parent, id, info = {})
       @class  = :zones
       @http   = http

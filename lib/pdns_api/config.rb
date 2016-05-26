@@ -15,10 +15,10 @@ module PDNS
     ##
     # Creates a configuration option object.
     #
-    # +http+:   An HTTP object for interaction with the PowerDNS server.
-    # +parent+: This object's parent.
-    # +name+:   Name of the configuration option.
-    # +value+:  Optional value of the configuration option.
+    # - +http+:   An HTTP object for interaction with the PowerDNS server.
+    # - +parent+: This object's parent.
+    # - +name+:   Name of the configuration option.
+    # - +value+:  Optional value of the configuration option.
     def initialize(http, parent, name, value = nil)
       @class  = :config
       @http   = http
