@@ -1,9 +1,20 @@
-# PDNS Server Override
+##
+#
 module PDNS
-  # Server override
+  ##
+  # Override for a server.
   class Override < API
-    attr_reader :id, :url, :info
+    ##
+    # The ID of the override.
+    attr_reader :id
 
+    ##
+    # Creates a configuration option object.
+    #
+    # +http+:   An HTTP object for interaction with the PowerDNS server.
+    # +parent+: This object's parent.
+    # +id+:     ID of the override.
+    # +info+:   Optional information of the override.
     def initialize(http, parent, id, info = {})
       @class  = :overrides
       @http   = http
@@ -13,9 +24,10 @@ module PDNS
       @url    = "#{parent.url}/#{@class}/#{id}"
     end
 
-    ## Simple interfaces to overrides
-
-    # Change override settings
+    ##
+    # Changes override information.
+    #
+    # +rrset+ is used as changeset for the update.
     def change(rrsets)
       @http.put(@url, rrsets)
     end
