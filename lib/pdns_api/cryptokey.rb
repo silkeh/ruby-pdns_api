@@ -4,7 +4,6 @@ module PDNS
   ##
   # Cryptokey for a zone.
   class CryptoKey < API
-
     ##
     # Creates a cryptokey object.
     #

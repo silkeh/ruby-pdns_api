@@ -9,7 +9,6 @@ module PDNS
   ##
   # Class for creation of PDNS objects.
   class << self
-
     ##
     # Create a PDNS::Client object.
     def new(args)
