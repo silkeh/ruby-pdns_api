@@ -13,7 +13,7 @@ module PDNS
     attr_reader :id
 
     ##
-    # Creates a configuration option object.
+    # Creates a Server object.
     #
     # +http+:   An HTTP object for interaction with the PowerDNS server.
     # +parent+: This object's parent.
@@ -59,7 +59,7 @@ module PDNS
     end
 
     ##
-    # Returns existing or creates +Config+ objects.
+    # Returns existing configuration or creates a +Config+ object.
     #
     # If +name+ is not set the current configuration is returned in a hash.
     #
@@ -92,7 +92,7 @@ module PDNS
     # Returns existing or creates a +Zone+ object.
     #
     # If +id+ is not set the current servers are returned in a hash
-    # containing +Server+ objects.
+    # containing +Zone+ objects.
     #
     # If +id+ is set a +Server+ object with the provided ID is returned.
     def zones(id = nil)
