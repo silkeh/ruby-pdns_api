@@ -1,10 +1,30 @@
-# PDNS HTTP API interface
+##
+#
 module PDNS
-  # Class for doing HTTP requests
+  ##
+  # Class for connecting to the PowerDNS API.
   class HTTP
+    ##
+    # Headers used for requests
     attr_accessor :headers
+
+    ##
+    # The PowerDNS API version in use.
     attr_reader   :version
 
+    ##
+    # Creates a PDNS connection.
+    #
+    # +args+ is a a hash which should include:
+    # - +:host+: hostname or IP address of the PowerDNS server.
+    # - +:key+:  API key for the PowerDNS server.
+    #
+    # It may include:
+    # - +:port+:    Port the server listens on. Defaults to +8081+.
+    # - +:version+: Version of the API to use.  Defaults to +1+.
+    #   The version of the API depends on the version of PowerDNS.
+    #
+    # TODO: retrieve endpoint from +/api+ if version is not provided.
     def initialize(args)
       @host    = args[:host]
       @key     = args[:key]
@@ -13,14 +33,21 @@ module PDNS
       @headers = { 'X-API-Key' => @key }
     end
 
+    ##
+    # Returns the correct URI for a request.
+    # This depends on the API version.
     def uri(request = '')
       base = ''
-      base = "/api/v#{@version}" unless @version == 0 || request[0..4] == '/api/'
+      base = "/api/v#{@version}" unless @version == 0 || request[0..3] == '/api'
       base + request
     end
 
-    # Create the right method object
+    ##
+    # Returns the correct Net:HTTP object for the request.
     def http_method(method, uri)
+      # Debug output
+      puts "#{method}: #{uri}" if ENV['DEBUG']
+
       # Create the right request
       case method
       when 'GET'    then Net::HTTP::Get.new(uri, @headers)
@@ -32,6 +59,8 @@ module PDNS
       end
     end
 
+    ##
+    # Decodes the response from the server.
     def response_decode(response)
       return {} if response.body.nil?
 
@@ -43,13 +72,22 @@ module PDNS
       end
     end
 
-    # Do an HTTP request
-    def http(method, request, body = nil)
+    ##
+    # Does an HTTP request and returns the response.
+    # Parameters are:
+    # - +method+: HTTP method to use.
+    # - +uri+:    URL for the request
+    # - +body+:   Optional body of the request.
+    # Returns the decoded response.
+    def http(method, uri, body = nil)
+      # Debug output
+      puts 'Body: ' + body.to_json if ENV['DEBUG']
+
       # Start an HTTP connection
       begin
         response = Net::HTTP.start(@host, @port) do |http|
           # Create uri & request
-          uri = uri(request)
+          uri = uri(uri)
           req = http_method(method, uri)
 
           # Do the request
@@ -62,27 +100,37 @@ module PDNS
       response_decode(response)
     end
 
-    # Do a DELETE request
+    ##
+    # Does an HTTP +DELETE+ request to +uri+.
+    # Returns the decoded response.
     def delete(uri)
       http('DELETE', uri)
     end
 
-    # Do a GET request
+    ##
+    # Does an HTTP +GET+ request to +uri+.
+    # Returns the decoded response.
     def get(uri)
       http('GET', uri)
     end
 
-    # Do a PATCH request
+    ##
+    # Does an HTTP +PATCH+ request to +uri+.
+    # Returns the decoded response.
     def patch(uri, body = nil)
       http('PATCH', uri, body)
     end
 
-    # Do a POST request
+    ##
+    # Does an HTTP +POST+ request to +uri+.
+    # Returns the decoded response.
     def post(uri, body = nil)
       http('POST', uri, body)
     end
 
-    # Do a PUT request
+    ##
+    # Does an HTTP +PUT+ request to +uri+.
+    # Returns the decoded response.
     def put(uri, body = nil)
       http('PUT', uri, body)
     end

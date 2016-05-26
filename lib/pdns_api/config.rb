@@ -5,15 +5,15 @@ module PDNS
   # Configuration option for a DNS Server.
   class Config < API
     ##
-    # Name of the configuration option.
+    # The name of the configuration option.
     attr_accessor :name
 
     ##
-    # Value of the configuration option.
+    # The value of the configuration option.
     attr_accessor :value
 
     ##
-    # Create a configuration option object.
+    # Creates a configuration option object.
     #
     # +http+:   An HTTP object for interaction with the PowerDNS server.
     # +parent+: This object's parent.
@@ -30,7 +30,7 @@ module PDNS
     end
 
     ##
-    # Get or set the +value+ attribute.
+    # Gets or sets the +value+ attribute.
     #
     # If +value+ is not set the current +value+ is returned.
     # If +value+ is set the object's +value+ is updated and +info+ is set and returned
@@ -41,10 +41,10 @@ module PDNS
     end
 
     ##
-    # Get the current information.
+    # Gets the current information.
     # This also updates +value+.
     def get
-      res = @http.get(@url)
+      res = @http.get @url
       value(res[:value]) if res.key? :value
       res
     end
