@@ -5,7 +5,7 @@ module PDNS
   # Class for connecting to the PowerDNS API.
   class HTTP
     ##
-    # Headers used for requests
+    # The headers used for requests.
     attr_accessor :headers
 
     ##

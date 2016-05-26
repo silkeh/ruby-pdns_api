@@ -15,7 +15,7 @@ module PDNS
     attr_reader :class
 
     ##
-    # Get the information of this object from the API and use it
+    # Gets the information of this object from the API and use it
     # to update the object's information.
     def get
       @info = @http.get @url
@@ -35,7 +35,7 @@ module PDNS
     end
 
     ##
-    # Get and set the object information.
+    # Gets and sets the object information.
     # This does not cause an API request.
     #
     # If +info+ is set this method updates the current information.
@@ -47,7 +47,7 @@ module PDNS
     end
 
     ##
-    # Ensure the object is an array.
+    # Ensures the object is an array.
     # If it is not, an array containing the item is returned
     def ensure_array(item)
       return item if item.is_a? Array

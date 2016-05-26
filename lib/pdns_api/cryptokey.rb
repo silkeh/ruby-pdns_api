@@ -6,7 +6,7 @@ module PDNS
   class CryptoKey < API
 
     ##
-    # Create a cryptokey object.
+    # Creates a cryptokey object.
     #
     # +http+:   An HTTP object for interaction with the PowerDNS server.
     # +parent+: This object's parent.
@@ -22,7 +22,7 @@ module PDNS
     end
 
     ##
-    # Change cryptokey information
+    # Changes cryptokey information
     #
     # +rrset+ is used as changeset for the update.
     def change(rrsets)

@@ -26,12 +26,12 @@ module PDNS
     end
 
     ##
-    # Returns existing or creates server object.
+    # Returns existing or creates a +Server+ object.
     #
     # If +id+ is not set the current servers are returned in a hash
     # containing +Server+ objects.
     #
-    # If +id+ is set a +Server+ object is created with the ID.
+    # If +id+ is set a +Server+ object with the provided ID is returned.
     def servers(id = nil)
       return Server.new(@http, self, id) unless id.nil?
 
