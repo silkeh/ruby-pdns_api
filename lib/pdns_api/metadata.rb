@@ -42,7 +42,7 @@ module PDNS
       @parent = parent
       @kind   = kind
       @url    = "#{parent.url}/#{@class}/#{kind}"
-      @value  = value.get if value.empty?
+      @value  = get if value.empty?
       value(@value)
     end
 
