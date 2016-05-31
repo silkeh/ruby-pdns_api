@@ -41,6 +41,9 @@ module PDNS
 
     ##
     # Creates this object on the server
+    #
+    # If +info+ is set this method updates the current information.
+    # The current information is used to create the object.
     def create(info = nil)
       info(info)
       @http.post("#{@parent.url}/#{@class}", @info)
@@ -64,7 +67,6 @@ module PDNS
     # This does not cause an API request.
     #
     # If +info+ is set this method updates the current information.
-    #
     def info(info = nil)
       return @info if info.nil?
 
@@ -73,7 +75,7 @@ module PDNS
 
     ##
     # Ensures the object is an array.
-    # If it is not, an array containing the item is returned
+    # If it is not, an array containing the item is returned.
     def ensure_array(item)
       return item if item.is_a? Array
       [item]
