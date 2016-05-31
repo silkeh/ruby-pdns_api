@@ -25,16 +25,17 @@ module PDNS
   # Zone on a server.
   class Zone < API
     ##
-    # The ID of the zone.
+    # @return [String] the ID of the zone.
     attr_reader :id
 
     ##
     # Creates a Zone object.
     #
-    # - +http+:   An HTTP object for interaction with the PowerDNS server.
-    # - +parent+: This object's parent.
-    # - +id+:     ID of the zone.
-    # - +info+:   Optional information of the zone.
+    # @param http   [HTTP]   An HTTP object for interaction with the PowerDNS server.
+    # @param parent [API]    This object's parent.
+    # @param id     [String] ID of the zone.
+    # @param info   [Hash]   Optional information of the zone.
+    #
     def initialize(http, parent, id, info = {})
       @class  = :zones
       @http   = http
@@ -48,12 +49,17 @@ module PDNS
     # Modifies information (records) of a zone.
     # Also formats records to match the API requirements.
     #
-    # Example:
+    # @param rrsets [Array] Changeset to send to the PowerDNS API.
+    #
+    # @return [Hash] result of the changeset.
+    #
+    # @example
     #  zone.modify([
     #     changetype: 'DELETE',
     #     name: 'www.example.com.',
     #     type: 'A'
     #  ])
+    #
     def modify(rrsets)
       rrsets.map! do |rrset|
         rrset = format_records(rrset) if rrset.key?(:records)
@@ -66,7 +72,7 @@ module PDNS
     ##
     # Notifies slaves for a zone.
     # Only works for domains for which the server is a master.
-    # Returns the result of the notification.
+    # @return [Hash] the result of the notification.
     def notify
       @http.put "#{@url}/notify"
     end
@@ -74,14 +80,14 @@ module PDNS
     ##
     # Retrieves the data for a zone.
     # Only works for domains for which the server is a slave.
-    # Returns the result of the retrieval.
+    # @return [Hash] the result of the retrieval.
     def axfr_retrieve
       @http.put "#{@url}/axfr-retrieve"
     end
 
     ##
     # Exports the zone as a bind zone file.
-    # Returns a hash containing the zone in +:result+.
+    # @return [Hash] containing the Bind formatted zone in +:result+.
     def export
       data = @http.get "#{@url}/export"
       data.delete(:error) if data[:error] == 'Non-JSON response'
@@ -90,7 +96,7 @@ module PDNS
 
     ##
     # Checks the zone for errors.
-    # Returns the result of the check.
+    # @return [Hash] the result of the check.
     def check
       @http.get "#{@url}/check"
     end
@@ -105,7 +111,11 @@ module PDNS
     # - An +Array+ containing record values.
     # - An +Array+ containing hashes as specified in the PowerDNS API.
     #
-    # Example:
+    # @param rrsets [Array<Object>] Array of Hashes containing records to replace.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
     #   zone.add({
     #     name: 'www0.example.com.',
     #     type: 'A',
@@ -146,14 +156,16 @@ module PDNS
     ##
     # Updates (replaces) records for a name/type combination in the zone.
     #
-    # +rrsets+ is used to create a changeset.
-    #
     # Elements of +rrsets+ can contain +:records+, which can be:
     # - A +String+ containing a single record value.
     # - An +Array+ containing record values.
     # - An +Array+ containing hashes as specified in the PowerDNS API.
     #
-    # Example:
+    # @param rrsets [Array<Object>] Array of Hashes containing records to replace.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
     #   zone.update({
     #     name: 'www0.example.com.',
     #     type: 'A',
@@ -184,7 +196,12 @@ module PDNS
     ##
     # Removes all records for a name/type combination from the zone.
     #
-    # Example:
+    # @param rrsets [Array<Object>] Array of Hashes to delete.
+    #  The Hash(es) in the Array should contain +:name+ and +:type+.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
     #   zone.remove({
     #     name: 'www0.example.com.',
     #     type: 'A'
@@ -205,12 +222,15 @@ module PDNS
     ##
     # Returns existing metadata or creates a +Metadata+ object.
     #
-    # If +kind+ is not set the current metadata is returned in a hash.
+    # @param kind  [String, nil] The kind of metadata.
+    # @param value [String, nil] The value of the metadata.
     #
-    # If +kind+ is set a +Metadata+ object is returned using the provided +kind+.
-    # If +value+ is set as well, a complete Metadata object is returned.
+    # @return [Metadata, Hash] Hash containing all metadata, or single +Metadata+ object.
+    #   - If +kind+ is not set the current metadata is returned in a +Hash+.
+    #   - If +kind+ is set a +Metadata+ object is returned using the provided +kind+.
+    #   - If +value+ is set as well, a complete Metadata object is returned.
     #
-    # Example:
+    # @example
     #  # Retrieve all metadata in a hash
     #  zone.metadata
     #  # Create a metadata object
@@ -237,14 +257,21 @@ module PDNS
     ##
     # Returns existing or creates a +CryptoKey+ object.
     #
-    # If +id+ is not set the current servers are returned in a hash
-    # containing +CryptoKey+ objects.
     #
-    # If +id+ is set a +CryptoKey+ object with the provided ID is returned.
     #
-    # Example:
+    #
+    #
+    # @param id [Integer, nil] ID of a +CryptoKey+.
+    #
+    # @return [Hash, CryptoKey] Hash of +CryptoKeys+ or a single +CryptoKey+.
+    #   - If +id+ is not set the current servers are returned in a hash
+    #     containing +CryptoKey+ objects.
+    #   - If +id+ is set a +CryptoKey+ object with the provided ID is returned.
+    #
+    # @example
     #  ckeys = zone.cryptokeys
     #  ckey  = zone.cryptokey(12)
+    #
     def cryptokeys(id = nil)
       return CryptoKey.new(@http, self, id) unless id.nil?
 
@@ -259,6 +286,10 @@ module PDNS
 
     ##
     # Formats a single record to match what is required by the API.
+    #
+    # @param record [String, Hash] Record to format.
+    # @return [Hash] Formatted record.
+    #
     def format_single_record(record)
       # Ensure content
       record = { content: record } if record.is_a? String
@@ -274,6 +305,9 @@ module PDNS
 
     ##
     # Format the records in an RRset te match what is required by the API.
+    # @param rrset [Hash] RRset of which to format the records.
+    # @return [Hash] Formatted RRset.
+    #
     def format_records(rrset)
       # Ensure existence of required keys
       rrset[:records].map! do |record|
@@ -294,7 +328,11 @@ module PDNS
 
     ##
     # Returns the records matching the ones in +rrset+ from +data+.
-    # +data+ should be the result from +get+.
+    #
+    # @param rrset [Hash] RRset to match current records with.
+    # @param data  [Hash] RRsets currently on the server. Should be the result from +get+.
+    # @returns [Array] Currently existing records.
+    #
     def current_records(rrset, data)
       # Get the records from the data, `records` is v0, `rrsets` is v1
       records = data[:records] || data[:rrsets]
