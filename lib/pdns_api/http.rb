@@ -80,7 +80,7 @@ module PDNS
     # Returns the decoded response.
     def http(net, body = nil)
       # Debug output
-      puts 'Body: ' + body.to_json if ENV['DEBUG']
+      puts "#{net.method}: #{net.path}\nBody: #{body.to_json}" if ENV['DEBUG']
 
       # Start an HTTP connection
       begin
