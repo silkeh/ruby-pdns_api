@@ -32,16 +32,11 @@ module PDNS
     attr_reader :class
 
     ##
-    # Gets the information of this object from the API and use it
-    # to update the object's information.
-    def get
-      @info = @http.get @url
-    end
-
-    ##
-    # Deletes this object
-    def delete
-      @http.delete @url
+    # Changes this object's information on the server.
+    #
+    # +rrsets+ is used as changeset for the update.
+    def change(rrsets)
+      @http.put(@url, rrsets)
     end
 
     ##
@@ -52,11 +47,16 @@ module PDNS
     end
 
     ##
-    # Changes this object's information on the server.
-    #
-    # +rrsets+ is used as changeset for the update.
-    def change(rrsets)
-      @http.put(@url, rrsets)
+    # Deletes this object
+    def delete
+      @http.delete @url
+    end
+
+    ##
+    # Gets the information of this object from the API and use it
+    # to update the object's information.
+    def get
+      @info = @http.get @url
     end
 
     ##
