@@ -26,10 +26,6 @@ module PDNS
     attr_accessor :kind
 
     ##
-    # The value of the metadata.
-    attr_accessor :value
-
-    ##
     # Creates a configuration option object.
     #
     # - +http+:   An HTTP object for interaction with the PowerDNS server.

@@ -26,10 +26,6 @@ module PDNS
     attr_accessor :name
 
     ##
-    # The value of the configuration option.
-    attr_accessor :value
-
-    ##
     # Disabled common methods
     undef_method :delete
 
