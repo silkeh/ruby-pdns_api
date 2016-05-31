@@ -71,6 +71,10 @@ module PDNS
     #
     # If +value+ is set, the current +value+ is used.
     # If +value+ is not set, +value+ is updated and then used.
+    #
+    # Example:
+    #   config.change('PowerDNS v3.14159265')
+    #
     def change(value = nil)
       value(value)
       @http.put(@url, @info)

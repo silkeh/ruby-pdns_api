@@ -47,6 +47,13 @@ module PDNS
     ##
     # Modifies information (records) of a zone.
     # Also formats records to match the API requirements.
+    #
+    # Example:
+    #  zone.modify([
+    #     changetype: 'DELETE',
+    #     name: 'www.example.com.',
+    #     type: 'A'
+    #  ])
     def modify(rrsets)
       rrsets.map! do |rrset|
         rrset = format_records(rrset) if rrset.key?(:records)
@@ -92,6 +99,30 @@ module PDNS
     # Adds records to the ones already existing in the zone.
     #
     # The existing records are retrieved and merged with the ones given in +rrsets+.
+    #
+    # Elements of +rrsets+ can contain +:records+, which can be:
+    # - A +String+ containing a single record value.
+    # - An +Array+ containing record values.
+    # - An +Array+ containing hashes as specified in the PowerDNS API.
+    #
+    # Example:
+    #   zone.add({
+    #     name: 'www0.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: '127.0.1.1',
+    #   }, {
+    #     name: 'www1.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: ['127.0.1.1', '127.0.0.1'],
+    #   }, {
+    #     name: 'www2.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: [{content: '127.0.1.1'},{content: '127.0.0.1', disabled: true}],
+    #   })
+    #
     def add(*rrsets)
       # Get current zone data
       data = get
@@ -114,6 +145,32 @@ module PDNS
 
     ##
     # Updates (replaces) records for a name/type combination in the zone.
+    #
+    # +rrsets+ is used to create a changeset.
+    #
+    # Elements of +rrsets+ can contain +:records+, which can be:
+    # - A +String+ containing a single record value.
+    # - An +Array+ containing record values.
+    # - An +Array+ containing hashes as specified in the PowerDNS API.
+    #
+    # Example:
+    #   zone.update({
+    #     name: 'www0.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: '127.0.1.1'
+    #   }, {
+    #     name: 'www1.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: ['127.0.1.1', '127.0.0.1']
+    #   }, {
+    #     name: 'www2.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: [{content: '127.0.1.1'},{content: '127.0.0.1', disabled: true}]
+    #   })
+    #
     def update(*rrsets)
       # Set type and format records
       rrsets.map! do |rrset|
@@ -126,6 +183,16 @@ module PDNS
 
     ##
     # Removes all records for a name/type combination from the zone.
+    #
+    # Example:
+    #   zone.remove({
+    #     name: 'www0.example.com.',
+    #     type: 'A'
+    #   }, {
+    #     name: 'www1.example.com.',
+    #     type: 'A'
+    #   })
+    #
     def remove(*rrsets)
       # Set type and format records
       rrsets.map! do |rrset|
@@ -142,6 +209,17 @@ module PDNS
     #
     # If +kind+ is set a +Metadata+ object is returned using the provided +kind+.
     # If +value+ is set as well, a complete Metadata object is returned.
+    #
+    # Example:
+    #  # Retrieve all metadata in a hash
+    #  zone.metadata
+    #  # Create a metadata object
+    #  meta = zone.metadata('ALLOW-AXFR-FROM')
+    #  puts meta.get
+    #  # Create a metadata object with a value
+    #  meta = zone.metadata('ALLOW-AXFR-FROM','AUTO-NS')
+    #  meta.change
+    #
     def metadata(kind = nil, value = nil)
       return Metadata.new(@http, self, kind, value) unless kind.nil? || value.nil?
       return Metadata.new(@http, self, kind) unless kind.nil?
@@ -163,6 +241,10 @@ module PDNS
     # containing +CryptoKey+ objects.
     #
     # If +id+ is set a +CryptoKey+ object with the provided ID is returned.
+    #
+    # Example:
+    #  ckeys = zone.cryptokeys
+    #  ckey  = zone.cryptokey(12)
     def cryptokeys(id = nil)
       return CryptoKey.new(@http, self, id) unless id.nil?
 
@@ -214,8 +296,8 @@ module PDNS
     # Returns the records matching the ones in +rrset+ from +data+.
     # +data+ should be the result from +get+.
     def current_records(rrset, data)
-      # Get the records from the data, `records` is v0, `rrset` is v1
-      records = data[:records] || data[:rrset]
+      # Get the records from the data, `records` is v0, `rrsets` is v1
+      records = data[:records] || data[:rrsets]
 
       # Select records matching type/name
       current = records.select { |r| r[:name] == rrset[:name] && r[:type] == rrset[:type] }

@@ -44,6 +44,14 @@ module PDNS
     #
     # If +info+ is set this method updates the current information.
     # The current information is used to create the object.
+    #
+    # Example:
+    #  zone.create(
+    #    name: zone.id,
+    #    kind: 'Native',
+    #    dnssec: true,
+    #    nameservers: %w( ns0.example.com. ns1.example.com. )
+    #  )
     def create(info = nil)
       info(info)
       @http.post("#{@parent.url}/#{@class}", @info)

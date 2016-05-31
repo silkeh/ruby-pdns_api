@@ -20,5 +20,5 @@
 module PDNS
   ##
   # The version of +pdns_api+.
-  VERSION = '0.1.1'.freeze
+  VERSION = '0.1.2'.freeze
 end
