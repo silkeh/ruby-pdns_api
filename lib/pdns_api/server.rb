@@ -26,16 +26,17 @@ module PDNS
   # Server object for accessing data for a particular server.
   class Server < API
     ##
-    # The ID of the server.
+    # @return [String] the ID of the server.
     attr_reader :id
 
     ##
     # Creates a Server object.
     #
-    # - +http+:   An HTTP object for interaction with the PowerDNS server.
-    # - +parent+: This object's parent.
-    # - +id+:     ID of the server.
-    # - +info+:   Optional information of the server.
+    # @param http   [HTTP]   An HTTP object for interaction with the PowerDNS server.
+    # @param parent [API]    This object's parent.
+    # @param id     [String] ID of the server.
+    # @param info   [Hash]   Optional information of the server.
+    #
     def initialize(http, parent, id, info = {})
       @class  = :servers
       @http   = http
@@ -78,10 +79,14 @@ module PDNS
     ##
     # Returns existing configuration or creates a +Config+ object.
     #
-    # If +name+ is not set the current configuration is returned in a hash.
+    # @param name [String, nil]  Name of the configuration option.
+    # @param value [String, nil] Value op the configuration option.
     #
-    # If +name+ is set a +Config+ object is returned using the provided +name+.
-    # If +value+ is set as well, a complete config object is returned.
+    # @return [Hash, Config] Hash containing +Config+ objects or a single +Config+ object.
+    #   - If +name+ is not set the current configuration is returned in a hash.
+    #   - If +name+ is set a +Config+ object is returned using the provided +name+.
+    #   - If +value+ is set as well, a complete config object is returned.
+    #
     def config(name = nil, value = nil)
       return Config.new(@http, self, name, value) unless name.nil? || value.nil?
       return Config.new(@http, self, name) unless name.nil?
@@ -94,10 +99,13 @@ module PDNS
     ##
     # Returns existing or creates an +Override+ object.
     #
-    # If +id+ is not set the current servers are returned in a hash
-    # containing +Override+ objects.
+    # @param id [String, nil] ID of the override.
     #
-    # If +id+ is set an +Override+ object with the provided ID is returned.
+    # @return [Hash, Override] Hash containing +Override+ objects or a single +Override+ object.
+    #   - If +id+ is not set the current servers are returned in a hash
+    #     containing +Override+ objects.
+    #   - If +id+ is set an +Override+ object with the provided ID is returned.
+    #
     def overrides(id = nil)
       return Override.new(@http, self, id) unless id.nil?
 
@@ -108,10 +116,13 @@ module PDNS
     ##
     # Returns existing or creates a +Zone+ object.
     #
-    # If +id+ is not set the current servers are returned in a hash
-    # containing +Zone+ objects.
+    # @param id [String, nil] ID of the override.
     #
-    # If +id+ is set a +Server+ object with the provided ID is returned.
+    # @return [Hash, Zone] Hash containing +Zone+ objects or a single +Zone+ object.
+    #   - If +id+ is not set the current servers are returned in a hash
+    #     containing +Zone+ objects.
+    #   - If +id+ is set a +Server+ object with the provided ID is returned.
+    #
     def zones(id = nil)
       return Zone.new(@http, self, id) unless id.nil?
 

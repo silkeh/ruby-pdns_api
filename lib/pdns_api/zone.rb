@@ -331,7 +331,7 @@ module PDNS
     #
     # @param rrset [Hash] RRset to match current records with.
     # @param data  [Hash] RRsets currently on the server. Should be the result from +get+.
-    # @returns [Array] Currently existing records.
+    # @return [Array] Currently existing records.
     #
     def current_records(rrset, data)
       # Get the records from the data, `records` is v0, `rrsets` is v1

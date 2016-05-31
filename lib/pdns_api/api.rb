@@ -24,17 +24,19 @@ module PDNS
   # The superclass for all PDNS objects.
   class API
     ##
-    # The url of the resource object.
+    # @return the url of the resource object.
     attr_reader :url
 
     ##
-    # The class of the resource object.
+    # @return the class of the resource object.
     attr_reader :class
 
     ##
     # Changes this object's information on the server.
     #
-    # +rrsets+ is used as changeset for the update.
+    # @param rrsets [Array] is used as changeset for the change.
+    # @return [Hash] result of the change.
+    #
     def change(rrsets)
       @http.put(@url, rrsets)
     end
@@ -45,20 +47,27 @@ module PDNS
     # If +info+ is set this method updates the current information.
     # The current information is used to create the object.
     #
-    # Example:
+    # @param info [Hash, nil] Information to set when creating the object.
+    # @return [Hash] result of the creation.
+    #
+    # @example
     #  zone.create(
     #    name: zone.id,
     #    kind: 'Native',
     #    dnssec: true,
     #    nameservers: %w( ns0.example.com. ns1.example.com. )
     #  )
+    #
     def create(info = nil)
       info(info)
       @http.post("#{@parent.url}/#{@class}", @info)
     end
 
     ##
-    # Deletes this object
+    # Deletes this object.
+    #
+    # @return [Hash] result of the deletion.
+    #
     def delete
       @http.delete @url
     end
@@ -66,6 +75,9 @@ module PDNS
     ##
     # Gets the information of this object from the API and use it
     # to update the object's information.
+    #
+    # @return [Hash] the object's information from the API.
+    #
     def get
       @info = @http.get @url
     end
@@ -74,7 +86,9 @@ module PDNS
     # Gets and sets the object information.
     # This does not cause an API request.
     #
-    # If +info+ is set this method updates the current information.
+    # @param info [Hash, nil] Information to change.
+    # @return [Hash] this object's information.
+    #
     def info(info = nil)
       return @info if info.nil?
 
@@ -84,6 +98,10 @@ module PDNS
     ##
     # Ensures the object is an array.
     # If it is not, an array containing the item is returned.
+    #
+    # @param item anything that might or might not be an +Array+.
+    # @return [Array] +item+ as an array.
+    #
     def ensure_array(item)
       return item if item.is_a? Array
       [item]
