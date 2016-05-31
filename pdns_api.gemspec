@@ -6,7 +6,6 @@ Gem::Specification.new do |s|
 
   s.name        = 'pdns_api'
   s.version     = PDNS::VERSION
-  s.date        = '2016-05-30'
   s.summary     = 'PowerDNS API gem'
   s.description = 'A gem for manipulation of DNS through the PowerDNS API'
   s.homepage    = 'https://github.com/silkeh/ruby-pdns_api'
