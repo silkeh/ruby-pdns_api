@@ -22,7 +22,7 @@ module PDNS
   # Metadata for a zone.
   class Metadata < API
     ##
-    # The kind of metadata.
+    # @return [name] the kind of metadata.
     attr_accessor :kind
 
     ##

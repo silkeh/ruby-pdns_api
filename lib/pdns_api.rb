@@ -28,6 +28,10 @@ module PDNS
   class << self
     ##
     # Create a PDNS::Client object.
+    #
+    # @param args [Hash] arguments used to create a +Client+ object.
+    # @return [Client] a client object to communicate to the API.
+    #
     def new(args)
       Client.new(args)
     end
