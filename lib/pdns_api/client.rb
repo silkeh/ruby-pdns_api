@@ -30,6 +30,10 @@ module PDNS
     attr_reader :version
 
     ##
+    # Disabled common methods
+    undef_method :change, :create, :delete
+
+    ##
     # Creates a client object.
     # +args+ is used to create an HTTP object,
     # which is used by all created objects.

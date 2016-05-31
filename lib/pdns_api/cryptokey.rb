@@ -22,6 +22,10 @@ module PDNS
   # Cryptokey for a zone.
   class CryptoKey < API
     ##
+    # The ID of the cryptokey.
+    attr_reader :id
+
+    ##
     # Creates a cryptokey object.
     #
     # - +http+:   An HTTP object for interaction with the PowerDNS server.

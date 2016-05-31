@@ -30,6 +30,10 @@ module PDNS
     attr_accessor :value
 
     ##
+    # Disabled common methods
+    undef_method :delete
+
+    ##
     # Creates a configuration option object.
     #
     # - +http+:   An HTTP object for interaction with the PowerDNS server.
