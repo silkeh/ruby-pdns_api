@@ -40,14 +40,28 @@ module PDNS
     #   - +:version+: Version of the API to use.  Defaults to +1+.
     #   The version of the API depends on the version of PowerDNS.
     #
-    # TODO: retrieve endpoint from +/api+ if version is not provided.
-    #
     def initialize(args)
       @host    = args[:host]
-      @key     = args[:key]
+      @headers = { 'X-API-Key' => args[:key] }
       @port    = args.key?(:port)    ? args[:port]    : 8081
-      @version = args.key?(:version) ? args[:version] : 1
-      @headers = { 'X-API-Key' => @key }
+      @version = args.key?(:version) ? args[:version] : api_version
+    end
+
+    ##
+    # Get the version of the API.
+    #
+    # @return [Integer] version of the PowerDNS API.
+    #
+    def api_version
+      # Do a request for the API endpoints
+      net = Net::HTTP::Get.new('/api', @headers)
+      res = http(net)
+
+      # APIv0 does not play nice.
+      return 0 unless res.is_a? Array
+
+      # Return the highest API version.
+      res.map { |a| a[:version] }.max.to_i
     end
 
     ##
