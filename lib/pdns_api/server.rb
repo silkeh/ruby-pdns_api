@@ -99,7 +99,7 @@ module PDNS
     ##
     # Returns existing or creates an +Override+ object.
     #
-    # @param id [String, nil] ID of the override.
+    # @param id [Integer, nil] ID of the override.
     #
     # @return [Hash, Override] Hash containing +Override+ objects or a single +Override+ object.
     #   - If +id+ is not set the current servers are returned in a hash

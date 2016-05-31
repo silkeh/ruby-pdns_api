@@ -22,16 +22,17 @@ module PDNS
   # Cryptokey for a zone.
   class CryptoKey < API
     ##
-    # The ID of the cryptokey.
+    # @return [Integer] the ID of the cryptokey.
     attr_reader :id
 
     ##
     # Creates a cryptokey object.
     #
-    # - +http+:   An HTTP object for interaction with the PowerDNS server.
-    # - +parent+: This object's parent.
-    # - +id+:     Identifier of the cryptokey.
-    # - +info+:   Optional information about the cryptokey.
+    # @param http   [HTTP]    An HTTP object for interaction with the PowerDNS server.
+    # @param parent [API]     This object's parent.
+    # @param id     [Integer] Identifier of the cryptokey.
+    # @param info   [Hash]    Optional information about the cryptokey.
+    #
     def initialize(http, parent, id, info = {})
       @class  = :cryptokeys
       @http   = http

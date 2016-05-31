@@ -22,16 +22,17 @@ module PDNS
   # Override for a server.
   class Override < API
     ##
-    # The ID of the override.
+    # @return [Integer] the ID of the override.
     attr_reader :id
 
     ##
     # Creates a configuration option object.
     #
-    # - +http+:   An HTTP object for interaction with the PowerDNS server.
-    # - +parent+: This object's parent.
-    # - +id+:     ID of the override.
-    # - +info+:   Optional information of the override.
+    # @param http   [HTTP]    An HTTP object for interaction with the PowerDNS server.
+    # @param parent [API]     This object's parent.
+    # @param id     [Integer] ID of the override.
+    # @param info   [Hash]    Optional information of the override.
+    #
     def initialize(http, parent, id, info = {})
       @class  = :overrides
       @http   = http

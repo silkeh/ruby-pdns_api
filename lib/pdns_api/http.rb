@@ -22,26 +22,26 @@ module PDNS
   # Class for connecting to the PowerDNS API.
   class HTTP
     ##
-    # The headers used for requests.
+    # @return [Hash] the headers used for requests.
     attr_accessor :headers
 
     ##
-    # The PowerDNS API version in use.
-    attr_reader   :version
+    # @return [Integer] the PowerDNS API version in use.
+    attr_reader :version
 
     ##
     # Creates a PDNS connection.
     #
-    # +args+ is a a hash which should include:
-    # - +:host+: hostname or IP address of the PowerDNS server.
-    # - +:key+:  API key for the PowerDNS server.
-    #
-    # It may include:
-    # - +:port+:    Port the server listens on. Defaults to +8081+.
-    # - +:version+: Version of the API to use.  Defaults to +1+.
+    # @param args [Hash] should include:
+    #   - +:host+: hostname or IP address of the PowerDNS server.
+    #   - +:key+:  API key for the PowerDNS server.
+    #   It may include:
+    #   - +:port+:    Port the server listens on. Defaults to +8081+.
+    #   - +:version+: Version of the API to use.  Defaults to +1+.
     #   The version of the API depends on the version of PowerDNS.
     #
     # TODO: retrieve endpoint from +/api+ if version is not provided.
+    #
     def initialize(args)
       @host    = args[:host]
       @key     = args[:key]
@@ -53,6 +53,10 @@ module PDNS
     ##
     # Returns the correct URI for a request.
     # This depends on the API version.
+    #
+    # @param request [String] Requested URI.
+    # @return [String] Correct URI for the API version.
+    #
     def uri(request = '')
       base = ''
       base = "/api/v#{@version}" unless @version == 0 || request[0..3] == '/api'
@@ -61,6 +65,10 @@ module PDNS
 
     ##
     # Decodes the response from the server.
+    #
+    # @param response [Net::HTTPResponse] response to decode.
+    # @return [Hash] decoded response.
+    #
     def response_decode(response)
       return {} if response.body.nil?
 
@@ -74,10 +82,12 @@ module PDNS
 
     ##
     # Does an HTTP request and returns the response.
-    # Parameters are:
-    # - +net+:  Net::HTTP method object to use in request.
-    # - +body+: Optional body of the request.
-    # Returns the decoded response.
+    #
+    # @param net  [Net::HTTP] object to use in request.
+    # @param body [Hash]      body of the request.
+    #
+    # @return [Hash] decoded response from server.
+    #
     def http(net, body = nil)
       # Debug output
       puts "#{net.method}: #{net.path}\nBody: #{body.to_json}" if ENV['DEBUG']
@@ -89,7 +99,7 @@ module PDNS
           http.request(net, body.to_json)
         end
       rescue StandardError, Timeout::Error => e
-        abort("Error: #{e}")
+        return { error: e.to_s }
       end
 
       response_decode(response)
@@ -97,7 +107,10 @@ module PDNS
 
     ##
     # Does an HTTP +DELETE+ request to +uri+.
-    # Returns the decoded response.
+    #
+    # @param uri [String] URI for request.
+    # @return [Hash] the decoded response.
+    #
     def delete(uri)
       uri = uri(uri)
       net = Net::HTTP::Delete.new(uri, @headers)
@@ -106,7 +119,10 @@ module PDNS
 
     ##
     # Does an HTTP +GET+ request to +uri+.
-    # Returns the decoded response.
+    #
+    # @param uri [String] URI for request.
+    # @return [Hash] the decoded response.
+    #
     def get(uri)
       uri = uri(uri)
       net = Net::HTTP::Get.new(uri, @headers)
@@ -115,7 +131,11 @@ module PDNS
 
     ##
     # Does an HTTP +PATCH+ request to +uri+.
-    # Returns the decoded response.
+    #
+    # @param uri [String] URI for request.
+    # @param body [Hash]  Body to include in request.
+    # @return [Hash] the decoded response.
+    #
     def patch(uri, body = nil)
       uri = uri(uri)
       net = Net::HTTP::Patch.new(uri, @headers)
@@ -124,7 +144,11 @@ module PDNS
 
     ##
     # Does an HTTP +POST+ request to +uri+.
-    # Returns the decoded response.
+    #
+    # @param uri [String] URI for request.
+    # @param body [Hash]  Body to include in request.
+    # @return [Hash] the decoded response.
+    #
     def post(uri, body = nil)
       uri = uri(uri)
       net = Net::HTTP::Post.new(uri, @headers)
@@ -133,7 +157,11 @@ module PDNS
 
     ##
     # Does an HTTP +PUT+ request to +uri+.
-    # Returns the decoded response.
+    #
+    # @param uri [String] URI for request.
+    # @param body [Hash]  Body to include in request.
+    # @return [Hash] the decoded response.
+    #
     def put(uri, body = nil)
       uri = uri(uri)
       net = Net::HTTP::Put.new(uri, @headers)

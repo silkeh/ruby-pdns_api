@@ -22,7 +22,7 @@ module PDNS
   # Configuration option for a DNS Server.
   class Config < API
     ##
-    # The name of the configuration option.
+    # @return [String] the name of the configuration option.
     attr_accessor :name
 
     ##
@@ -32,10 +32,11 @@ module PDNS
     ##
     # Creates a configuration option object.
     #
-    # - +http+:   An HTTP object for interaction with the PowerDNS server.
-    # - +parent+: This object's parent.
-    # - +name+:   Name of the configuration option.
-    # - +value+:  Optional value of the configuration option.
+    # @param http   [HTTP]   An HTTP object for interaction with the PowerDNS server.
+    # @param parent [API]    This object's parent.
+    # @param name   [String] Name of the configuration option.
+    # @param value  [String] Optional value of the configuration option.
+    #
     def initialize(http, parent, name, value = nil)
       @class  = :config
       @http   = http
@@ -49,17 +50,22 @@ module PDNS
     ##
     # Gets or sets the +value+ attribute.
     #
-    # If +value+ is not set the current +value+ is returned.
-    # If +value+ is set the object's +value+ is updated and +info+ is set and returned
+    # @param value [String, nil] the value of the object.
+    # @return [String] the value of the object.
+    #   If +value+ is set the object's +value+ is updated.
+    #
     def value(value = nil)
       return @value if value.nil?
-      @value = value
       @info  = { type: 'ConfigSetting', name: @name, value: value }
+      @value = value
     end
 
     ##
     # Gets the current information.
     # This also updates +value+.
+    #
+    # @return [Hash] the object's information from the API.
+    #
     def get
       res = @http.get @url
       value(res[:value]) if res.key? :value
@@ -67,12 +73,16 @@ module PDNS
     end
 
     ##
-    # Updates the object on the server.
+    # Changes this object's information on the server.
     #
-    # If +value+ is set, the current +value+ is used.
-    # If +value+ is not set, +value+ is updated and then used.
+    # @param value [String, nil] Value to change the object to.
+    #   - If +value+ is set, the current +value+ is used.
+    #   - If +value+ is not set, +value+ is updated and then used.
     #
-    # Example:
+    # @return [Hash] result of the change.
+    #
+    # @example
+    #   config = server.config('version')
     #   config.change('PowerDNS v3.14159265')
     #
     def change(value = nil)
