@@ -1,9 +1,9 @@
 Ruby PowerDNS API interface
 ===========================
 
-[![Gem Version](https://badge.fury.io/rb/pdns_api.svg)](http://badge.fury.io/rb/pdns_api)
-[![Inline docs](http://inch-ci.org/github/silkeh/ruby-pdns_api.svg)](http://inch-ci.org/github/silkeh/ruby-pdns_api)
-[![RDocs](http://img.shields.io/badge/yard-docs-blue.svg)](http://www.rubydoc.info/github/silkeh/ruby-pdns_api/master)
+[![Gem Version](https://badge.fury.io/rb/pdns_api.svg)](https://badge.fury.io/rb/pdns_api)
+[![Inline docs](https://inch-ci.org/github/silkeh/ruby-pdns_api.svg)](https://inch-ci.org/github/silkeh/ruby-pdns_api)
+[![Documentation](https://img.shields.io/badge/docs-rdoc.info-blue.svg)](http://www.rubydoc.info/github/silkeh/ruby-pdns_api/master)
 
 A ruby client for version 0 and 1 of the PowerDNS HTTP API.
 
