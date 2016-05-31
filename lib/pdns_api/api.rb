@@ -52,6 +52,14 @@ module PDNS
     end
 
     ##
+    # Changes this object's information on the server.
+    #
+    # +rrsets+ is used as changeset for the update.
+    def change(rrsets)
+      @http.put(@url, rrsets)
+    end
+
+    ##
     # Gets and sets the object information.
     # This does not cause an API request.
     #

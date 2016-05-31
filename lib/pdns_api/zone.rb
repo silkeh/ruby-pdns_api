@@ -57,13 +57,6 @@ module PDNS
     end
 
     ##
-    # Modifies basic zone data (metadata).
-    # +rrset+ is used as changeset for the update.
-    def change(rrsets)
-      @http.put(@url, rrsets)
-    end
-
-    ##
     # Notifies slaves for a zone.
     # Only works for domains for which the server is a master.
     # Returns the result of the notification.
