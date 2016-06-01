@@ -47,9 +47,13 @@ module PDNS
     end
 
     ##
-    # Flushes cache for +domain+.
-    def cache(domain)
-      # TODO: #{url}/cache/flush?domain=:domain: PUT
+    # Flushes cache for a domain.
+    #
+    # @param domain [String] name of the domain.
+    # @return [Hash] result of the action.
+    #
+    def cache_flush(domain)
+      @http.put("#{@url}/cache/flush?domain=#{domain}")
     end
 
     ##
