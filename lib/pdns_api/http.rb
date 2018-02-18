@@ -38,6 +38,7 @@ module PDNS
     #   It may include:
     #   - +:port+:    Port the server listens on. Defaults to +8081+.
     #   - +:version+: Version of the API to use.  Defaults to +1+.
+    #   - +:scheme+:  Scheme - HTTP or HTTPS.  Defaults to +http+.
     #   The version of the API depends on the version of PowerDNS.
     #
     def initialize(args)
@@ -45,6 +46,7 @@ module PDNS
       @headers = { 'X-API-Key' => args[:key] }
       @port    = args.key?(:port)    ? args[:port]    : 8081
       @version = args.key?(:version) ? args[:version] : api_version
+      @scheme  = args.key?(:scheme)  ? args[:scheme]  : 'http'
     end
 
     ##
@@ -108,7 +110,7 @@ module PDNS
 
       # Start an HTTP connection
       begin
-        response = Net::HTTP.start(@host, @port) do |http|
+        response = Net::HTTP.start(@host, @port, use_ssl: @scheme == 'https') do |http|
           # Do the request
           http.request(net, body.to_json)
         end
