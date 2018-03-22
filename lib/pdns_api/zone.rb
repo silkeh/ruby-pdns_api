@@ -277,7 +277,7 @@ module PDNS
 
       rrsets = data[:rrsets]
 
-      rrsets.select! { |r| r[:type] != "SOA" && (r[:type != "NS"] && !nameservers.include(r[:content])) }
+      rrsets.select! { |r| r[:type] != "SOA" && (r[:type] != "NS" && !nameservers.include?(r[:content])) }
 
       rrsets.map! do |rrset|
         rrset[:changetype] = 'DELETE'
