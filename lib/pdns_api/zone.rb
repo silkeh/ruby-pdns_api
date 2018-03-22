@@ -261,6 +261,31 @@ module PDNS
     end
 
     ##
+    # Removes all records with exception of SOA. (addition from dachinat/ruby-pdns_api fork)
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
+    #   zone.remove_all
+    #
+    def remove_all
+      data = get
+
+      return data if data.key?(:error)
+
+      rrsets = data[:rrsets]
+
+      rrsets.select! { |r| r[:type] != "SOA" }
+
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'DELETE'
+        rrset
+      end
+
+      modify(rrsets)
+    end
+
+    ##
     # Removes specified records for a name/type combination from the zone. (addition from dachinat/ruby-pdns_api fork)
     #
     # @param rrsets [Array<Object>] Array of Hashes having records to delete.
