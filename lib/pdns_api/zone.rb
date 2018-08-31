@@ -346,7 +346,9 @@ module PDNS
       end
 
       # For API v1 there is only one element containing all records
-      current = current.first[:records] unless @http.version == 0
+      unless current.empty? || @http.version.zero?
+        current = current.first[:records]
+      end
 
       # Return the records
       current
