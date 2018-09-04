@@ -58,6 +58,10 @@ module PDNS
 
     ##
     # Searches through the server's log with +search_term+.
+    #
+    # @param search_term [String] terms to search for.
+    # @return [Hash] result of the search.
+    #
     def search_log(search_term)
       # TODO: /servers/:server_id/search-log?q=:search_term: GET
     end
