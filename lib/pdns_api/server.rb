@@ -70,8 +70,24 @@ module PDNS
 
     ##
     # Manipulates the query tracing log.
+    #
+    # @param domain_regex [String, nil]
+    #   Regular expression to match for domain tracing.
+    #   Set to nil to turn off tracking.
+    #
+    # @return [Hash] Regular expression and matching log lines.
+    #
+    def trace=(domain_regex)
+      @http.put("#{@url}/trace", domains: domain_regex)
+    end
+
+    ##
+    # Retrieves the query tracing log.
+    #
+    # @return [Hash] Regular expression and matching log lines.
+    #
     def trace
-      # TODO: /servers/:server_id/trace: GET, PUT
+      @http.get("#{@url}/trace")
     end
 
     ##
