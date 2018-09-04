@@ -18,7 +18,7 @@
 require 'pdns_api/http'
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # The superclass for all PDNS objects.

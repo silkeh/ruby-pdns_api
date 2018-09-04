@@ -16,7 +16,7 @@
 #
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # Class for connecting to the PowerDNS API.

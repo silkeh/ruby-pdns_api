@@ -19,7 +19,7 @@ require 'pdns_api/metadata'
 require 'pdns_api/cryptokey'
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # Zone on a server.

@@ -20,7 +20,7 @@ require 'pdns_api/override'
 require 'pdns_api/zone'
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # Server object for accessing data for a particular server.

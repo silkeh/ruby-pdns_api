@@ -16,7 +16,7 @@
 #
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # Configuration option for a DNS Server.

@@ -20,7 +20,7 @@ require 'pdns_api/api'
 require 'pdns_api/server'
 
 ##
-#
+# Module for interaction with the PowerDNS HTTP API.
 module PDNS
   ##
   # Class for interaction with the top level API.
