@@ -2,6 +2,7 @@ Ruby PowerDNS API interface
 ===========================
 
 [![Gem Version](https://badge.fury.io/rb/pdns_api.svg)](https://badge.fury.io/rb/pdns_api)
+[![Build Status](https://travis-ci.com/silkeh/ruby-pdns_api.svg?branch=master)](https://travis-ci.com/silkeh/ruby-pdns_api)
 [![Inline docs](https://inch-ci.org/github/silkeh/ruby-pdns_api.svg)](https://inch-ci.org/github/silkeh/ruby-pdns_api)
 [![Documentation](https://img.shields.io/badge/docs-rdoc.info-blue.svg)](http://www.rubydoc.info/github/silkeh/ruby-pdns_api/master)
 
