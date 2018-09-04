@@ -318,7 +318,7 @@ module PDNS
         record[:disabled] ||= !!rrset[:disabled]
 
         # Return record
-        next record unless @http.version == 0
+        next record unless @http.version.zero?
 
         # But add some more for APIv0
         record.merge(name: rrset[:name], type: rrset[:type], ttl: rrset[:ttl])
@@ -333,7 +333,7 @@ module PDNS
     # @param data  [Hash] RRsets currently on the server. Should be the result from +get+.
     # @return [Array] Currently existing records.
     #
-    def current_records(rrset, data)
+    def current_records(rrset, data) # rubocop:disable Metrics/AbcSize
       # Get the records from the data, `records` is v0, `rrsets` is v1
       records = data[:records] || data[:rrsets]
 
@@ -341,14 +341,12 @@ module PDNS
       current = records.select { |r| r[:name] == rrset[:name] && r[:type] == rrset[:type] }
 
       # Get only content/disabled for API v0
-      if @http.version == 0
-        current.map! { |record| { content:  record[:content], disabled: record[:disabled] } }
+      if @http.version.zero?
+        current.map! { |record| { content: record[:content], disabled: record[:disabled] } }
       end
 
       # For API v1 there is only one element containing all records
-      unless current.empty? || @http.version.zero?
-        current = current.first[:records]
-      end
+      current = current.first[:records] unless current.empty? || @http.version.zero?
 
       # Return the records
       current

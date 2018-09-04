@@ -75,7 +75,7 @@ module PDNS
     #
     def uri(request = '')
       base = ''
-      base = "/api/v#{@version}" unless @version == 0 || request[0..3] == '/api'
+      base = "/api/v#{@version}" unless @version.zero? || request[0..3] == '/api'
       base + request
     end
 
@@ -114,7 +114,7 @@ module PDNS
           # Do the request
           http.request(net, body.to_json)
         end
-      rescue StandardError, Timeout::Error => e
+      rescue StandardError => e
         return { error: e.to_s }
       end
 
