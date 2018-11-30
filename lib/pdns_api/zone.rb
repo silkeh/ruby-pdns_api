@@ -102,7 +102,7 @@ module PDNS
     end
 
     ##
-    # Adds records to the ones already existing in the zone.
+    # Adds records to the zone. (addition from dachinat/ruby-pdns_api fork)
     #
     # The existing records are retrieved and merged with the ones given in +rrsets+.
     #
@@ -143,11 +143,16 @@ module PDNS
       # Add these records to the rrset
       rrsets.map! do |rrset|
         # Get current data from rrset
-        current = current_records(rrset, data)
-
-        # Merge data
-        rrset[:records]    = current + ensure_array(rrset[:records])
         rrset[:changetype] = 'REPLACE'
+
+        # See if there are no records for type
+        if data[:rrsets].select { |r| r[:type] == rrset[:type] && r[:name] == rrset[:name] }.blank?
+          rrset[:records] = ensure_array(rrset[:records])
+        else
+          current = current_records(rrset, data)
+          rrset[:records]    = current + ensure_array(rrset[:records])
+        end
+
         rrset
       end
       modify(rrsets)
@@ -194,6 +199,42 @@ module PDNS
     end
 
     ##
+    # Updates records contents for a name/type combination in the zone. (addition from dachinat/ruby-pdns_api fork)
+    #
+    # Elements of +rrsets+ can contain +:records+, which can be:
+    # - A +String+ containing a single record value.
+    # - An +Array+ containing record values.
+    # - An +Array+ containing hashes as specified in the PowerDNS API.
+    #
+    # @param old_record [Array<Object>] Array containing hash of record that will be replaced.
+    # @param rrsets [Array<Object>] Array of Hashes containing new records.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
+    #   zone.update_record({
+    #     name: 'www0.example.com.',
+    #     type: 'A',
+    #     ttl:  86_400,
+    #     records: [{
+    #       content: '127.0.1.1',
+    #       disabled: false
+    #     }]
+    #   }, {
+    #     name: 'www0.example.com.',
+    #     type: 'AAAA',
+    #     ttl:  86_400,
+    #     records: [{
+    #       content: '2001:0db8:85a3:0000:0000:8a2e:0370:7334',
+    #       disabled: false
+    #     }]
+    #   })
+    def update_record(old_record, *rrsets)
+      remove_record(old_record)
+      add(rrsets[0])
+    end
+
+    ##
     # Removes all records for a name/type combination from the zone.
     #
     # @param rrsets [Array<Object>] Array of Hashes to delete.
@@ -214,6 +255,74 @@ module PDNS
       # Set type and format records
       rrsets.map! do |rrset|
         rrset[:changetype] = 'DELETE'
+        rrset
+      end
+      modify(rrsets)
+    end
+
+    ##
+    # Removes all records with exception of SOA. (addition from dachinat/ruby-pdns_api fork)
+    #
+    # @param nameservers [Array<Object>] Array of nameservers to leave.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
+    #   zone.remove_all
+    #
+    def remove_all(nameservers=[])
+      data = get
+
+      return data if data.key?(:error)
+
+      rrsets = data[:rrsets]
+
+      rrsets.select! { |r| r[:type] != "SOA" && (r[:type] != "NS" && !nameservers.include?(r[:content])) }
+
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'DELETE'
+        rrset
+      end
+
+      modify(rrsets)
+    end
+
+    ##
+    # Removes specified records for a name/type combination from the zone. (addition from dachinat/ruby-pdns_api fork)
+    #
+    # @param rrsets [Array<Object>] Array of Hashes having records to delete.
+    #  The Hash(es) in the Array should contain +:name+ and +:type+.
+    #
+    # @return [Hash] Hash containing result of the operation.
+    #
+    # @example
+    #   zone.remove_record({
+    #     name: "www0.example.com",
+    #     type: "A",
+    #     ttl: 3600,
+    #     records: [{
+    #       content: "15.7.7.607",
+    #       disabled: false
+    #     }]
+    #   })
+    def remove_record(*rrsets)
+      # Get current zone data
+      data = get
+
+      # Return any errors
+      return data if data.key?(:error)
+
+      # Remove needed records from rrset
+      rrsets.map! do |rrset|
+        rrset[:changetype] = 'REPLACE'
+
+        # See if there are no records for type
+        if data[:rrsets].select { |r| r[:type] == rrset[:type] && r[:name] == rrset[:name] }.blank?
+          rrset[:records] = []
+        else
+          current = current_records(rrset, data)
+          rrset[:records] = current - ensure_array(rrset[:records])
+        end
         rrset
       end
       modify(rrsets)
